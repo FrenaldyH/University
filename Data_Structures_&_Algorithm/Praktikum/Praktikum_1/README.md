@@ -3,7 +3,7 @@
 
 ## Problem Task & Solution
 ### 1. [Hello](./probA-Hello.pdf) - [Solution](./A.c)
-### 2. [Antre Kembali](./probB-AntreKembali.pdf)
-### 3. [Tukaran](./probC-Tukaran.pdf)
-### 4. [Kutukan Raja Laut](./probD-KutukanRajaLaut.pdf)
+### 2. [Antre Kembali](./probB-AntreKembali.pdf) - [Solution](./B.c)
+### 3. [Tukaran](./probC-Tukaran.pdf) - [Solution](./C.c)
+### 4. [Kutukan Raja Laut](./probD-KutukanRajaLaut.pdf) - [Solution](./D.c)
 
