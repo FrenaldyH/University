@@ -22,14 +22,14 @@
 ## Laporan Pengerjaan Task-3 (Cella's Manhwa)
 
 ### A) Summoning the Manhwa Stats
-📌 **Deskripsi Singkat** 
-- Membantu Cella mengambil data manhwa menggunakan API dan menyimpannya di folder dengan ketentuan yang tertera
+#### 📌 **Deskripsi Singkat** 
+> Membantu Cella mengambil data manhwa menggunakan API dan menyimpannya di folder dengan ketentuan yang tertera
 
-📝 **Cara Pengerjaan**
-1) Mencari ID dan nama manhwa kemudian menyimpannya di array of struct
-2) Membuat folder "Manhwa" untuk menyimpan file-file data manhwa
-3) Mencari data-data menhwa menggunakan API dan kemudian menyimpannya dalam bentuk yang telah diolah oleh salah satu function json
-4) Memfilter data mentah json agar sesuai format ketentuan Cella
+#### 📝 **Cara Pengerjaan**
+1) Mencari ID dan nama manhwa kemudian menyimpannya di array of struct.
+2) Membuat folder "Manhwa" dengan menggunakan execv() yang digunakan untuk menyimpan file-file data manhwa.
+3) Mencari data-data menhwa menggunakan API dan kemudian menyimpannya dalam bentuk yang telah diolah oleh salah satu function json.
+4) Memfilter data mentah json agar sesuai format ketentuan Cella.
 
 #### Kode
 ```
@@ -116,7 +116,7 @@
 ```
 
 #### Hasil
-- Hasil diurutkan berdasarkan abjad
+> Hasil diurutkan berdasarkan abjad
 1) File 1: Darling_Why_Cant_We_Divorce.txt
    ```
     Title: Darling, Why Can't We Divorce?
@@ -126,26 +126,120 @@
     Theme: Isekai, Villainess
     Author: Cha, Sohee
    ```
-2) FIle 2: 
+2) FIle 2: Mistaken_as_the_Monster_Dukes_Wife.txt
+   ```
+     Title: Mistaken as the Monster Duke's Wife
+     Status: Publishing
+     Release: 2024-03-22
+     Genre: Fantasy, Romance
+     Theme: Isekai, Reincarnation
+     Author: Euncha
+   ```
+3) File 3: No_I_Only_Charmed_the_Princess.txt
+   ```
+    Title: No, I Only Charmed the Princess!
+    Status: Publishing
+    Release: 2024-04-18
+    Genre: Fantasy, Romance
+    Theme: Isekai, Reincarnation
+    Author: Maru Gongbang
+   ```
+4) File 4: The_Villainess_Lives_Again.txt
+   ```
+    Title: The Villainess Lives Again
+    Status: Finished
+    Release: 2020-06-03
+    Genre: Drama, Fantasy, Romance
+    Theme: Time Travel
+    Author: Han, Mint
+   ```
+
+### B) Seal the Scrolls
+#### 📌 **Deskripsi Singkat**
+> Membantu cella untuk mengzip kan masing-masing file data di Manhwa dan menyimpannya di folder baru bernama Archive sesuai ketentuan Cella
+
+#### 📝 **Cara Pengerjaan**
+1) Membuat array of struct yang menyimpan nama dan ID manhwa cella.
+2) Membuat folder "Archive" dengan menggunakan execv() yang digunakan untuk menyimpan data dalam bentuk Zip.
+3) Membuat zip dan menyimpannya di "Archive"
 
 
+#### Kode 
+```
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <sys/wait.h>
+#include <ctype.h>
 
-### Rudi-b
-📌 **Deskripsi Singkat**
-> Membantu Rudi melihat pengguna komputer di waktu inputan dan
-log aktivitas pengguna berdasarkan file dari ***access.log***  dan ***peminjaman_komputer.csv*** 
+typedef struct {
+    char *title;
+    int id;
+} manhwa;
 
-📝 **Cara Pengerjaan**
-> Memformat inputan dan nilai-nilai dari file agar bersesuaian. Mulai dari file csv, ambil nama dari tanggal dan ip yang diinput, lalu pergi ke file log, cari dan ambil berdasarkan semua kebutuhan sesuai format soal dan simpan ke log. Sintaks yang dipakai adalah script awk, date, dan grep.
+manhwa manhwa_list[] = {
+    {"Mistaken_as_the_Monster_Dukes_Wife", 168827},
+    {"The_Villainess_Lives_Again", 147205},
+    {"No_I_Only_Charmed_the_Princess", 169731},
+    {"Darling_Why_Cant_We_Divorce", 175521},
+};
 
-👉 **Kendala**
-> 1. Kurang konsisten. Tempat penyimpanan file di soal adalah di root (/backup), tetapi setelah dikonfirmasi, ternyata di pwd.
+void make_Archive() {
+    pid_t pid = fork();
+    if(pid == 0) {
+        char *args[] = {"mkdir", "-p", "Archive", NULL};
+        execv("/bin/mkdir", args);
+        exit(EXIT_FAILURE);
+    }
+    wait(NULL);
+}
 
+void zip_name(const char *filename, char *zipname) {
+    int j = 0;
+    for(int i = 0; filename[i] != '\0'; i++) {
+        if(filename[i] >= 'A' && filename[i] <= 'Z') {
+            zipname[j++] = filename[i];
+        }
+    }
+    zipname[j] = '\0';
+    strcat(zipname, ".zip");
+}
 
-#### Hasil
-![Screenshot 2025-03-28 101926](https://github.com/user-attachments/assets/8fe20392-4415-431a-831e-a218900d2982)
-##### Isi file log :
-![Screenshot 2025-03-28 101943](https://github.com/user-attachments/assets/c379cd0b-1182-4acf-85ef-e72d2bfa60ff)
+void make_zip() {
+    make_Archive(); 
+    
+    for(int i = 0; i < sizeof(manhwa_list) / sizeof(manhwa); i++) {
+        pid_t pid = fork();
+        if(pid == 0) {
+            char zipname[(1 << 11)], filename[(1 << 11)], command[(1 << 13)];
+            
+            
+            snprintf(filename, sizeof(filename), "Manhwa/%s.txt", manhwa_list[i].title);
+            zip_name(manhwa_list[i].title, zipname);
+            
+            char zip_path[(1 << 12)];
+            snprintf(zip_path, sizeof(zip_path), "Archive/%s", zipname);
+            
+            snprintf(command, sizeof(command), "zip -j '%s' '%s'", zip_path, filename);
+            char *args[] = {"/bin/sh", "-c", command, NULL};
+            execv("/bin/sh", args);
+            
+            perror("execv failed");
+            exit(EXIT_FAILURE);
+        }
+        wait(NULL);
+    }
+}
+
+int main() {
+    make_zip();
+}
+```
+##### Hasil
+```
+
+```
 
 
 
