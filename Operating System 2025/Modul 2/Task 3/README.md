@@ -23,13 +23,17 @@
 
 ### A) Summoning the Manhwa Stats
 #### 📌 **Deskripsi Singkat** 
-> Membantu Cella mengambil data manhwa menggunakan API dan menyimpannya di folder dengan ketentuan yang tertera
+> Membantu Cella mengambil data manhwa menggunakan API dan menyimpannya di folder dengan ketentuan yang tertera.
 
 #### 📝 **Cara Pengerjaan**
 1) Mencari ID dan nama manhwa kemudian menyimpannya di array of struct.
 2) Membuat folder "Manhwa" dengan menggunakan execv() yang digunakan untuk menyimpan file-file data manhwa.
 3) Mencari data-data menhwa menggunakan API dan kemudian menyimpannya dalam bentuk yang telah diolah oleh salah satu function json.
 4) Memfilter data mentah json agar sesuai format ketentuan Cella.
+
+#### 👉 **Kendala**
+> Kesulitan dalam membaca file mentah sehingga diubah menjadi format json dengan menggunakan "| jq".
+
 
 #### Kode
 ```
@@ -163,7 +167,6 @@
 2) Membuat folder "Archive" dengan menggunakan execv() yang digunakan untuk menyimpan data dalam bentuk Zip.
 3) Membuat zip dan menyimpannya di "Archive"
 
-
 #### Kode 
 ```
 #include <stdio.h>
@@ -238,22 +241,26 @@ int main() {
 ```
 ##### Hasil
 1) [DWCD.zip](Archive/DWCWD.zip)
+2) [MMDW.zip](Archive/MMDW.zip)
+3) [NIOCP.zip](Archive/NIOCP.zip)
+4) [TVLA.zip](Archive/TVLA.zip)
+   
 
+### C) Making the Waifu Gallery
+#### 📌 **Deskripsi Singkat**
+> Mengunduh gambar masing-masing heroin manhwa sesuai ketentuan yang Cella berikan
 
+#### **📝 Cara Pengerjaan**
+1) Menyimpan nama manhwa berserta IDnya di dalam sebuah array of struct
+2) Membuat folder "Heroin" untuk menyimpan masing-masing file heroin pada setiap Manhwa
+3) Mengubah keterngan bulan pada file data dari string ke int
+4) Mendownload file gambar sesuai bulan rilis manhwa dan menyimpannya di file yang sesuai
 
-
-### Rudi-c
- 📌 **Deskripsi Singkat**
-> Membantu Rudi mencari siapa di antara ketiga temannya yang menemukan status code 500 terbanyak berdasarkan file dari ***access.log***  dan ***peminjaman_komputer.csv*** 
-
-**📝 Cara Pengerjaan**
-> Membuat array berisi tanggal dan ip mulai dari log, ketika status code bernilai 500, masukkan ip dan tanggal ke dalam array. Setelah itu, pindah ke file csv, dan cari nama berdasarkan tanggal dan ip. Tambahkan nilainya ke variabel nama yang terkait, lalu bandingkan untuk mencari siapa yang paling banyak mendapatkan status 500
-
-👉 **Kendala**
-> Skill issue di array sehingga time complexity scriptnya O(n*2) 
+#### 👉 **Kendala**
+> Kesulitan dalam mendapatkan API yang menyediakan keterangan heroin secara explisit, sehingga saya mencari nama Heroin dan linknya secara manual 
 
 #### Hasil
-![Screenshot 2025-03-28 102802](https://github.com/user-attachments/assets/b616b416-b6da-463b-874b-3bbc8e4f7ec8)
+
 
 
 
