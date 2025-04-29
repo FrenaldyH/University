@@ -561,6 +561,9 @@ int main() {
 #### Hasil
 > Folder [images](Archive/image)
 
+### E) (Solver)[]
+#### 📌 **Deskripsi Singkat**
+> Menjalankan program A, B, C, dan D secara berurutan
 
 
 
