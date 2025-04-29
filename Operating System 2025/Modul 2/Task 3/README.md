@@ -559,7 +559,7 @@ int main() {
 }
 ```
 #### Hasil
-> Folder [images]()
+> Folder [images](Archive/image)
 
 
 
