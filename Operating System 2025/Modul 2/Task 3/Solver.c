@@ -27,10 +27,10 @@ void run_program(const char *program_name) {
 }
 
 int main() {
-    run_program("./A_Summoning_the_Manhwa_Stats.exe");
-    run_program("./B_Seal_the_Scrolls.exe");
-    run_program("./C_Making_the_Waifu_Gallery.exe");
-    run_program("./D_Zip_Save_Goodbye.exe");
+    run_program("./A_Summoning_the_Manhwa_Stats");
+    run_program("./B_Seal_the_Scrolls");
+    run_program("./C_Making_the_Waifu_Gallery");
+    run_program("./D_Zip_Save_Goodbye");
 
     return 0;
 }
