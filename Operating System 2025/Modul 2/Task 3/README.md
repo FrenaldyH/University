@@ -19,9 +19,148 @@
 
 - [Task 4 - Pipip's Load Balancer](/task-4/)
 
-### Laporan Resmi Praktikum Modul 2 _(Module 2 Lab Work Report)_
+## Laporan Pengerjaan Task-3 (Cella's Manhwa)
 
-## Task 3 - Cella's Manhwa
+### A) Summoning the Manhwa Stats
+📌 **Deskripsi Singkat** 
+- Membantu Cella mengambil data manhwa menggunakan API dan menyimpannya di folder dengan ketentuan yang tertera
+
+📝 **Cara Pengerjaan**
+1) Mencari ID dan nama manhwa kemudian menyimpannya di array of struct
+2) Membuat folder "Manhwa" untuk menyimpan file-file data manhwa
+3) Mencari data-data menhwa menggunakan API dan kemudian menyimpannya dalam bentuk yang telah diolah oleh salah satu function json
+4) Memfilter data mentah json agar sesuai format ketentuan Cella
+
+#### Kode
+```
+  #include <stdio.h>
+  #include <stdlib.h>
+  #include <string.h>
+  #include <unistd.h>
+  #include <sys/wait.h>
+  
+  typedef struct {
+      char *title;
+      int id;
+  } manhwa;
+  
+  manhwa manhwa_list[] = {
+      {"Mistaken_as_the_Monster_Dukes_Wife", 168827},
+      {"The_Villainess_Lives_Again", 147205},
+      {"No_I_Only_Charmed_the_Princess", 169731},
+      {"Darling_Why_Cant_We_Divorce", 175521}
+  };
+  
+  void make_Manhwa() {
+      pid_t pid = fork();
+      if(pid == 0) {
+          char *args[] = {"mkdir", "-p", "Manhwa", NULL};
+          execv("/bin/mkdir", args);
+          exit(EXIT_FAILURE);
+      }   
+      wait(NULL);
+  }
+  
+  void make_json() {
+      for(int i = 0; i < sizeof(manhwa_list) / sizeof(manhwa); i++) {
+          pid_t pid = fork();
+          if(pid == 0) {
+              char filename[(1 << 11)], command[(1 << 12)];
+              
+              snprintf(filename, sizeof(filename), "Manhwa/%s.txt", manhwa_list[i].title);
+              snprintf(command, sizeof(command),
+                      "curl -s https://api.jikan.moe/v4/manga/%d | jq > \"%s\"",
+                      manhwa_list[i].id, filename);
+              
+              char *args[] = {"/bin/sh", "-c", command, NULL};
+              execv("/bin/sh", args);
+              exit(EXIT_FAILURE);
+          }
+          wait(NULL); 
+      }
+  }
+  
+  void filter_json() {
+      for(int i = 0; i < sizeof(manhwa_list) / sizeof(manhwa); i++) {
+          pid_t pid = fork();
+          if(pid == 0) {
+              char filename[(1 << 11)], tempname[(1 << 12)], command[(1 << 15)];
+              
+              snprintf(filename, sizeof(filename), "Manhwa/%s.txt", manhwa_list[i].title);
+              snprintf(tempname, sizeof(tempname), "%s.temp", filename);
+              
+              snprintf(command, sizeof(command),
+                  "jq -r '\"Title: \" + (.data.title // \"Unknown\") + \"\\n\" + "
+                  "\"Status: \" + (.data.status // \"Unknown\") + \"\\n\" + "
+                  "\"Release: \" + (.data.published.from // \"Unknown\" | sub(\"T.*\"; \"\")) + \"\\n\" + "
+                  "\"Genre: \" + ((.data.genres // []) | map(.name) | join(\", \") // \"Unknown\") + \"\\n\" + "
+                  "\"Theme: \" + ((.data.themes // []) | map(.name) | join(\", \") // \"Unknown\") + \"\\n\" + "
+                  "\"Author: \" + ((.data.authors // [])[0].name // \"Unknown\")' "
+                  "\"%s\" > \"%s\" && mv \"%s\" \"%s\"",
+                  filename, tempname, tempname, filename);
+              
+              char *args[] = {"/bin/sh", "-c", command, NULL};
+              execv("/bin/sh", args);
+              exit(EXIT_FAILURE);
+          }
+          wait(NULL);
+      }
+  }
+  
+  int main() {
+      make_Manhwa();
+      make_json();
+      filter_json();
+      return EXIT_SUCCESS;
+  }
+```
+
+#### Hasil
+- Hasil diurutkan berdasarkan abjad
+1) File 1: Darling_Why_Cant_We_Divorce.txt
+   ```
+    Title: Darling, Why Can't We Divorce?
+    Status: Publishing
+    Release: 2024-10-02
+    Genre: Fantasy, Romance
+    Theme: Isekai, Villainess
+    Author: Cha, Sohee
+   ```
+2) FIle 2: 
+
+
+
+### Rudi-b
+📌 **Deskripsi Singkat**
+> Membantu Rudi melihat pengguna komputer di waktu inputan dan
+log aktivitas pengguna berdasarkan file dari ***access.log***  dan ***peminjaman_komputer.csv*** 
+
+📝 **Cara Pengerjaan**
+> Memformat inputan dan nilai-nilai dari file agar bersesuaian. Mulai dari file csv, ambil nama dari tanggal dan ip yang diinput, lalu pergi ke file log, cari dan ambil berdasarkan semua kebutuhan sesuai format soal dan simpan ke log. Sintaks yang dipakai adalah script awk, date, dan grep.
+
+👉 **Kendala**
+> 1. Kurang konsisten. Tempat penyimpanan file di soal adalah di root (/backup), tetapi setelah dikonfirmasi, ternyata di pwd.
+
+
+#### Hasil
+![Screenshot 2025-03-28 101926](https://github.com/user-attachments/assets/8fe20392-4415-431a-831e-a218900d2982)
+##### Isi file log :
+![Screenshot 2025-03-28 101943](https://github.com/user-attachments/assets/c379cd0b-1182-4acf-85ef-e72d2bfa60ff)
+
+
+
+### Rudi-c
+ 📌 **Deskripsi Singkat**
+> Membantu Rudi mencari siapa di antara ketiga temannya yang menemukan status code 500 terbanyak berdasarkan file dari ***access.log***  dan ***peminjaman_komputer.csv*** 
+
+**📝 Cara Pengerjaan**
+> Membuat array berisi tanggal dan ip mulai dari log, ketika status code bernilai 500, masukkan ip dan tanggal ke dalam array. Setelah itu, pindah ke file csv, dan cari nama berdasarkan tanggal dan ip. Tambahkan nilainya ke variabel nama yang terkait, lalu bandingkan untuk mencari siapa yang paling banyak mendapatkan status 500
+
+👉 **Kendala**
+> Skill issue di array sehingga time complexity scriptnya O(n*2) 
+
+#### Hasil
+![Screenshot 2025-03-28 102802](https://github.com/user-attachments/assets/b616b416-b6da-463b-874b-3bbc8e4f7ec8)
 
 
 
