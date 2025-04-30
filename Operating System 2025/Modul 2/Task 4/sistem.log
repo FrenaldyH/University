@@ -1,0 +1,17 @@
+Message from client: A
+Message count: 10
+Recieved at lb: A #message 10
+Worker3: message received
+Worker2: message received
+Worker1: message received
+Worker3: message received
+Worker2: message received
+Worker1: message received
+Worker3: message received
+Worker1: message received
+Worker2: message received
+Worker 3: 3 message
+Worker1: message received
+Worker 2: 3 message
+Worker 1: 4 message
+LoadBalancer: selesai mendistribusikan 10 pesan
