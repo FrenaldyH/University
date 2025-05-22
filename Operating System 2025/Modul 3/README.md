@@ -184,15 +184,44 @@ praktikan2:praktikan2
 
 - **Code:**
 
-  `put your answer here`
+  ```
+    fren@fren-virtual-machine:~/Praktikum/home$ ls -l
+    total 16
+    drwxrwxr-x 2 775 fren 4096 Mei 22 23:56 Budiman
+    drwxrwxr-x 2 775 fren 4096 Mei 22 23:56 guest
+    drwxrwxr-x 2 775 fren 4096 Mei 22 23:56 praktikan1
+    drwxrwxr-x 2 775 fren 4096 Mei 22 23:56 praktikan2
+    fren@fren-virtual-machine:~/Praktikum/home$ sudo chmod 700 *
+    fren@fren-virtual-machine:~/Praktikum/home$ ls -l
+    total 16
+    drwx------ 2 775 fren 4096 Mei 22 23:56 Budiman
+    drwx------ 2 775 fren 4096 Mei 22 23:56 guest
+    drwx------ 2 775 fren 4096 Mei 22 23:56 praktikan1
+    drwx------ 2 775 fren 4096 Mei 22 23:56 praktikan2
+    fren@fren-virtual-machine:~/Praktikum/home$ sudo chown -R 1001:100 Budiman
+    fren@fren-virtual-machine:~/Praktikum/home$ sudo chown -R 1002:100 guest
+    fren@fren-virtual-machine:~/Praktikum/home$ sudo chown -R 1003:100 praktikan1
+    fren@fren-virtual-machine:~/Praktikum/home$ sudo chown -R 1004:100 praktikan2
+    fren@fren-virtual-machine:~/Praktikum/home$ ls -l
+    total 16
+    drwx------ 2 1001 users 4096 Mei 22 23:56 Budiman
+    drwx------ 2 1002 users 4096 Mei 22 23:56 guest
+    drwx------ 2 1003 users 4096 Mei 22 23:56 praktikan1
+    drwx------ 2 1004 users 4096 Mei 22 23:56 praktikan2
+  ```
 
 - **Explanation:**
 
-  `put your answer here`
+  ```
+    Disini saya melakukan beberapa langkah yaitu:
+    1. melihat dulu permission masing-masing dictionary di home/ dengan menggunakan ls -l
+    2. mengubah semua permission (*) dictionary di home dengan 700 -> 111 000 000
+    3. menyetel kepemilikan masing-masing dictionary
+    4. memastikan kembali permission dan kepemilikan masing-masing dictionary 
+  ```
 
 - **Screenshot:**
-
-  `put your answer here`
+  - [Screenshot terminal](https://github.com/user-attachments/assets/fc4cd3cc-a5a5-4a4b-bbd3-f50bbc77170f)
 
 ### Soal 6
 
