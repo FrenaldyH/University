@@ -69,9 +69,11 @@ praktikan2:praktikan2
 
 **Answer:**
 
+
+
 - **Code:**
 
-  `
+  ```
     fren@fren-virtual-machine:~/Praktikum$ openssl passwd -1 Iniroot
     $1$T2K6D1rC$gDRgBw5wlnHLprpLNvyai/
     fren@fren-virtual-machine:~/Praktikum$ openssl passwd -1 PassBudi
@@ -93,19 +95,24 @@ praktikan2:praktikan2
     [sudo] password for fren: 
     fren@fren-virtual-machine:~/Praktikum/etc$ ls
     passwd
-  `
+  ```
 
-  `
+  ```
     root:$1$T2K6D1rC$gDRgBw5wlnHLprpLNvyai/:0:0:root:/root:/bin/sh
     Budiman:$1$59Tr/gKo$oD6c3oeRBwz613P10HvS80:1001:100:Budiman:/home/Budiman:/bin/sh
     guest:$1$RHZeDuT7$tRMsv..Ws5xhjRJTKmKk5.:1002:100:guest:/home/guest:/bin/sh
     praktikan1:$1$iu5qKlk2$Of4hRddumEGNToU2OFe6Y0:1003:100:praktikan1:/home/praktikan1:/bin/sh
     praktikan2:$1$ORaET2v7$ZTCLcYXyTC5gLHlJxMFgu.:1004:100:praktikan2:/home/praktikan2:/bin/sh
-  `
+  ```
 
 - **Explanation:**
 
-  `put your answer here`
+  ```
+    Beberapa langkah yang saya jalankan:
+    1. membuat directory user dan passwd
+    2. menggenerate hash dan password user usernya
+    3. menyimpan hasil dari generate hash dan password user-usernya di file /etc/passwd
+  ```
 
 - **Screenshot:**
 
