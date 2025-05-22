@@ -129,15 +129,50 @@ praktikan2:praktikan2
 
 - **Code:**
 
-  `put your answer here`
+  ```
+    fren@fren-virtual-machine:~$ ls
+    Desktop  Documents  Downloads  modul  Music  Pictures  Praktikum  Public  snap  Templates  Videos
+    fren@fren-virtual-machine:~$ cd Praktikum/
+    fren@fren-virtual-machine:~/Praktikum$ ls
+    bin  dev  etc  home  proc  sisop  sys  tmp
+    fren@fren-virtual-machine:~/Praktikum$ mkdir root
+    fren@fren-virtual-machine:~/Praktikum$ ls
+    bin  dev  etc  home  proc  root  sisop  sys  tmp
+    fren@fren-virtual-machine:~/Praktikum$ chmod 700 ./root
+    fren@fren-virtual-machine:~/Praktikum$ ls
+    bin  dev  etc  home  proc  root  sisop  sys  tmp
+    fren@fren-virtual-machine:~/Praktikum$ ls -l
+    total 36
+    drwxrwxr-x 2 fren fren 4096 Mei 22 19:37 bin
+    drwxrwxr-x 2 fren fren 4096 Mei 22 19:37 dev
+    drwxrwxr-x 2 fren fren 4096 Mei 23 00:08 etc
+    drwxrwxr-x 6 fren fren 4096 Mei 22 23:56 home
+    drwxrwxr-x 2 fren fren 4096 Mei 22 19:37 proc
+    drwx------ 2 fren fren 4096 Mei 23 00:46 root
+    drwxrwxr-x 2 fren fren 4096 Mei 22 19:37 sisop
+    drwxrwxr-x 2 fren fren 4096 Mei 22 19:37 sys
+    drwxrwxr-x 2 fren fren 4096 Mei 22 19:37 tmp
+    fren@fren-virtual-machine:~/Praktikum$ chown root:root ./root
+    chown: changing ownership of './root': Operation not permitted
+    fren@fren-virtual-machine:~/Praktikum$ sudo chown root:root ./root
+    [sudo] password for fren: 
+    fren@fren-virtual-machine:~/Praktikum$ ls -ld ./root
+    drwx------ 2 root root 4096 Mei 23 00:46 ./root
+  ```
 
 - **Explanation:**
 
-  `put your answer here`
+  ```
+    Disini saya melakukan beberapa langkah:
+    1. buat dulu folder root karena sebelumya tidak ada
+    2. ubah permissionnya ke 700 -> 111 000 000, artinya hany terbatas pada pemilik
+    3. membuat kepemilikan ./root oleh root
+    4. memastikan kepemilikan ./root oleh root dengan ls -ld
+  ```
 
 - **Screenshot:**
 
-  `put your answer here`
+  - [Screenshot terminal](https://github.com/user-attachments/assets/f90559fb-35c8-42d1-ab99-444f6835482e)
 
 ### Soal 5
 
