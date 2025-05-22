@@ -27,7 +27,7 @@ _One sunny morning, Budiman, an Informatics student, was assigned by his lecture
 
 - **Screenshot:**
 
-  [HasilScreenshot](https://github.com/user-attachments/assets/6bf4c011-5ea4-43ab-affe-e0aaa52ca0b6)
+  [HasilScreenshot](https://github.com/user-attachments/assets/51e58eac-7dcf-46d7-a52b-2672e5cdf636)
 
 ### Soal 2
 
