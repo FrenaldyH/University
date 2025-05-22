@@ -39,15 +39,15 @@ _One sunny morning, Budiman, an Informatics student, was assigned by his lecture
 
 - **Code:**
 
-  `put your answer here`
+  `mkdir bin dev proc sys tmp sisop`
 
 - **Explanation:**
 
-  `put your answer here`
+  `disini kami menggunakan perintah sederhana {mkdir} untuk membuat directorynya`
 
 - **Screenshot:**
 
-  `put your answer here`
+  `![image](https://github.com/user-attachments/assets/899e2e09-cf63-4fc6-9058-07f87b31de12)`
 
 ### Soal 3
 
