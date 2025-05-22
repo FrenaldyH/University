@@ -21,17 +21,13 @@ _One sunny morning, Budiman, an Informatics student, was assigned by his lecture
 
 **Answer:**
 
-- **Code:**
-
-  `put your answer here`
-
 - **Explanation:**
 
   `put your answer here`
 
 - **Screenshot:**
 
-  `put your answer here`
+  ``
 
 ### Soal 2
 
