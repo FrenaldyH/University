@@ -1,4 +1,4 @@
-[![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/Eu-CByJh)
+![image](https://github.com/user-attachments/assets/9852ba08-394a-44ee-89c5-c5912a82de3e)[![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/Eu-CByJh)
 |    NRP     |      Name      |
 | :--------: | :------------: |
 | 5025221000 | Student 1 Name |
@@ -27,8 +27,8 @@ _One sunny morning, Budiman, an Informatics student, was assigned by his lecture
 
 - **Screenshot:**
 
-  - [HasilScreenshotVMWare](https://github.com/user-attachments/assets/51e58eac-7dcf-46d7-a52b-2672e5cdf636)
-  - [HasilScreenshotOsboot](https://github.com/user-attachments/assets/f2768be3-4d18-4629-81cd-e5586421624e)
+  - [Screenshot VMWare](https://github.com/user-attachments/assets/51e58eac-7dcf-46d7-a52b-2672e5cdf636)
+  - [Screenshot Osboot](https://github.com/user-attachments/assets/f2768be3-4d18-4629-81cd-e5586421624e)
 )
 
 ### Soal 2
@@ -49,7 +49,7 @@ _One sunny morning, Budiman, an Informatics student, was assigned by his lecture
 
 - **Screenshot:**
 
-  [HasilScreenshot](https://github.com/user-attachments/assets/899e2e09-cf63-4fc6-9058-07f87b31de12)
+  [Hasil Screenshot](https://github.com/user-attachments/assets/899e2e09-cf63-4fc6-9058-07f87b31de12)
 
 ### Soal 3
 
@@ -71,7 +71,37 @@ praktikan2:praktikan2
 
 - **Code:**
 
-  `put your answer here`
+  `
+    fren@fren-virtual-machine:~/Praktikum$ openssl passwd -1 Iniroot
+    $1$T2K6D1rC$gDRgBw5wlnHLprpLNvyai/
+    fren@fren-virtual-machine:~/Praktikum$ openssl passwd -1 PassBudi
+    $1$59Tr/gKo$oD6c3oeRBwz613P10HvS80
+    fren@fren-virtual-machine:~/Praktikum$ openssl passwd -1 guest
+    $1$RHZeDuT7$tRMsv..Ws5xhjRJTKmKk5.
+    fren@fren-virtual-machine:~/Praktikum$ openssl passwd -1 praktikan1
+    $1$iu5qKlk2$Of4hRddumEGNToU2OFe6Y0
+    fren@fren-virtual-machine:~/Praktikum$ openssl passwd -1 praktikan2
+    $1$ORaET2v7$ZTCLcYXyTC5gLHlJxMFgu.
+    fren@fren-virtual-machine:~/Praktikum$ ls
+    bin  dev  etc  home  proc  sisop  sys  tmp
+    fren@fren-virtual-machine:~/Praktikum$ cd etc/
+    fren@fren-virtual-machine:~/Praktikum/etc$ ls
+    passwd
+    fren@fren-virtual-machine:~/Praktikum/etc$ nano passwd 
+    fren@fren-virtual-machine:~/Praktikum/etc$ nano passwd 
+    fren@fren-virtual-machine:~/Praktikum/etc$ sudo nano passwd 
+    [sudo] password for fren: 
+    fren@fren-virtual-machine:~/Praktikum/etc$ ls
+    passwd
+  `
+
+  `
+    root:$1$T2K6D1rC$gDRgBw5wlnHLprpLNvyai/:0:0:root:/root:/bin/sh
+    Budiman:$1$59Tr/gKo$oD6c3oeRBwz613P10HvS80:1001:100:Budiman:/home/Budiman:/bin/sh
+    guest:$1$RHZeDuT7$tRMsv..Ws5xhjRJTKmKk5.:1002:100:guest:/home/guest:/bin/sh
+    praktikan1:$1$iu5qKlk2$Of4hRddumEGNToU2OFe6Y0:1003:100:praktikan1:/home/praktikan1:/bin/sh
+    praktikan2:$1$ORaET2v7$ZTCLcYXyTC5gLHlJxMFgu.:1004:100:praktikan2:/home/praktikan2:/bin/sh
+  `
 
 - **Explanation:**
 
@@ -79,7 +109,9 @@ praktikan2:praktikan2
 
 - **Screenshot:**
 
-  `put your answer here`
+  - [Screenshot Terminal](https://github.com/user-attachments/assets/742ec3ad-438e-4467-b9e0-af52017b4cf6)
+  - [Screenshot passwd](https://github.com/user-attachments/assets/8a52b6b4-a086-45f6-912e-437ce18fb299)
+  - [Screenshot isi directory home](https://github.com/user-attachments/assets/78ec177d-8b6d-4bf6-9d61-9f0348cd8b3a)
 
 ### Soal 4
 
