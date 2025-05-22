@@ -27,7 +27,7 @@ _One sunny morning, Budiman, an Informatics student, was assigned by his lecture
 
 - **Screenshot:**
 
-  `[{1E97B787-29DA-4F5A-9682-BC36E30CF2F1}](https://github.com/user-attachments/assets/6bf4c011-5ea4-43ab-affe-e0aaa52ca0b6)`
+  [HasilScreenshot](https://github.com/user-attachments/assets/6bf4c011-5ea4-43ab-affe-e0aaa52ca0b6)
 
 ### Soal 2
 
@@ -47,7 +47,7 @@ _One sunny morning, Budiman, an Informatics student, was assigned by his lecture
 
 - **Screenshot:**
 
-  `[image](https://github.com/user-attachments/assets/899e2e09-cf63-4fc6-9058-07f87b31de12)`
+  [HasilScreenshot](https://github.com/user-attachments/assets/899e2e09-cf63-4fc6-9058-07f87b31de12)
 
 ### Soal 3
 
