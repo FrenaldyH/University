@@ -23,11 +23,11 @@ _One sunny morning, Budiman, an Informatics student, was assigned by his lecture
 
 - **Explanation:**
 
-  `put your answer here`
+  `Disini saya sudah mendownload VMWare dan mengalokasikan memori 5GB untuk VMware`
 
 - **Screenshot:**
 
-  ``
+  `![{1E97B787-29DA-4F5A-9682-BC36E30CF2F1}](https://github.com/user-attachments/assets/6bf4c011-5ea4-43ab-affe-e0aaa52ca0b6)`
 
 ### Soal 2
 
