@@ -22,7 +22,7 @@ _One sunny morning, Budiman, an Informatics student, was assigned by his lecture
 
 - **Explanation:**
 
-  `Disini kami sudah mendownload VMWare dan mengalokasikan memori 5GB untuk VMware. Selain itu kami juga menjalankan subcode subcode pada modul dari awal hingga akhir`
+  ```Disini kami sudah mendownload VMWare dan mengalokasikan memori 5GB untuk VMware. Selain itu kami juga menjalankan subcode subcode pada modul dari awal hingga akhir```
 
 - **Screenshot:**
 
