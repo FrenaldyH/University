@@ -23,11 +23,12 @@ _One sunny morning, Budiman, an Informatics student, was assigned by his lecture
 
 - **Explanation:**
 
-  `Disini kami sudah mendownload VMWare dan mengalokasikan memori 5GB untuk VMware`
+  `Disini kami sudah mendownload VMWare dan mengalokasikan memori 5GB untuk VMware. Selain itu kami juga menjalankan subcode subcode pada modul dari awal hingga akhir`
 
 - **Screenshot:**
 
-  [HasilScreenshot](https://github.com/user-attachments/assets/51e58eac-7dcf-46d7-a52b-2672e5cdf636)
+  [HasilScreenshotVMWare](https://github.com/user-attachments/assets/51e58eac-7dcf-46d7-a52b-2672e5cdf636)
+  [HasilScreenshotOsboot](https://github.com/user-attachments/assets/61d5ae7d-dca1-4ec6-8bab-0fa66139e863)
 
 ### Soal 2
 
