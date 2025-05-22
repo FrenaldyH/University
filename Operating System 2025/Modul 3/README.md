@@ -28,7 +28,7 @@ _One sunny morning, Budiman, an Informatics student, was assigned by his lecture
 
   - [Screenshot VMWare](https://github.com/user-attachments/assets/51e58eac-7dcf-46d7-a52b-2672e5cdf636)
   - [Screenshot Osboot](https://github.com/user-attachments/assets/f2768be3-4d18-4629-81cd-e5586421624e)
-)
+
 
 ### Soal 2
 
