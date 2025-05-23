@@ -265,15 +265,19 @@ praktikan2:praktikan2
 
 - **Code:**
 
-  `put your answer here`
+  ```
+    #!/bin/bash
+    cat banner
+    echo "Helloo $USER"
+  ```
 
 - **Explanation:**
 
-  `put your answer here`
+  `Disini saya hanya menambahkan {echo "Helloo $USER"} dari kode sebelumnya (no 6)`
 
 - **Screenshot:**
 
-  `put your answer here`
+  - [Screenshot terminal](https://github.com/user-attachments/assets/77b847bc-2953-4963-ac4d-7cb54d2aa15f)
 
 ### Soal 8
 
