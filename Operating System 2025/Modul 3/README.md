@@ -233,15 +233,27 @@ praktikan2:praktikan2
 
 - **Code:**
 
-  `put your answer here`
+  ```
+    #!/bin/bash
+    cat banner
+  ```
+  ```
+ __          __  _                            _           ____   _____ _ ___  _____ 
+ \ \        / / | |                          | |         / __ \ / ____( )__ \| ____|
+  \ \  /\  / /__| | ___ ___  _ __ ___   ___  | |_ ___   | |  | | (___ |/   ) | |__  
+   \ \/  \/ / _ \ |/ __/ _ \| '_ ` _ \ / _ \ | __/ _ \  | |  | |\___ \    / /|___ \ 
+    \  /\  /  __/ | (_| (_) | | | | | |  __/ | || (_) | | |__| |____) |  / /_ ___) |
+     \/  \/ \___|_|\___\___/|_| |_| |_|\___|  \__\___/   \____/|_____/  |____|____/ 
+                                                                                                                                                                   
+  ```
 
 - **Explanation:**
 
-  `put your answer here`
-
+    `Disini saya membuat file profile yang akan dijalan sebelum user login dan meletakkannya di dalam dicrectory etc`
+  
 - **Screenshot:**
 
-  `put your answer here`
+  - [Screenshor Terminal](https://github.com/user-attachments/assets/9db135dc-7245-42ed-b48e-68afe70bb531)
 
 ### Soal 7
 
