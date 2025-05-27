@@ -1,8 +1,8 @@
 |    NRP     |      Name      |
 | :--------: | :------------: |
-| 5025221000 | Student 1 Name |
-| 5025221000 | Student 2 Name |
-| 5025221000 | Student 3 Name |
+| 5025221126 | Fairuz Hanif Rahmadi |
+| 5025221156 | Frenaldy Bestabba Hasugian |
+| 5025221165 | Rafi Aqila Maulana |
 
 # Praktikum Modul 3 _(Module 3 Lab Work)_
 
@@ -289,15 +289,58 @@ praktikan2:praktikan2
 
 - **Code:**
 
-  `put your answer here`
+```  
+  cat << "EOF"
+
+
+   _      __    __                     __         ____  _____  ___  ____
+  | | /| / /__ / /______  __ _  ___   / /____    / __ \/ __( )|_  |/ __/
+  | |/ |/ / -_) / __/ _ \/  ' \/ -_) / __/ _ \  / /_/ /\ \ |// __//__ \ 
+  |__/|__/\__/_/\__/\___/_/_/_/\__/  \__/\___/  \____/___/  /____/____/ 
+
+  EOF
+
+  echo "helloo $USER"
+
+  export PATH=/bin:$PATH
+  export PS1='\[\e[1;32m\]\u@\h:\[\e[1;34m\]/\W\[\e[0m\]\$ '
+
+
+  alias ls='ls --color=auto'
+  export LS_COLORS='di=1;34'
+```
 
 - **Explanation:**
 
-  `put your answer here`
+  ```
+    Menambahkan kode dalam file profile
+    export PATH=/bin:$PATH
+    export PS1='\[\e[1;32m\]\u@\h:\[\e[1;34m\]/\W\[\e[0m\]\$ '
+
+
+    alias ls='ls --color=auto'
+    export LS_COLORS='di=1;34'
+
+    \e[1;32m → hijau terang untuk user@hostname
+
+    \e[1;34m → biru terang untuk nama folder
+
+    \e[0m → reset warna setelahnya
+
+    alias ls='ls --color=auto'
+  → Aktifkan pewarnaan otomatis pada perintah ls.
+
+  LS_COLORS='di=1;34'
+  → di berarti directory (folder), 1;34 artinya biru terang (bold blue).
+
+  Kemudian run qemu dengan:
+  qemu-system-x86_64 -smp 2 -m 256 -nographic -vga std -kernel bzImage -initrd myramdisk.gz
+  ```
 
 - **Screenshot:**
 
-  `put your answer here`
+  ![Screenshot from 2025-05-23 19-31-23](https://github.com/user-attachments/assets/e118b6d1-9127-4d4c-a50e-c2f822ce551d)
+
 
 ### Soal 9
 
@@ -309,15 +352,41 @@ praktikan2:praktikan2
 
 - **Code:**
 
-  `put your answer here`
+  ```
+  cp bin/nano myramdisk/bin
+  
+  mkdir -p myramdisk/lib
+  mkdir -p myramdisk/lib64
+
+  cp /lib/x86_64-linux-gnu/libncursesw.so.6 myramdisk/lib/
+  cp /lib/x86_64-linux-gnu/libtinfo.so.6 myramdisk/lib/
+  cp /lib/x86_64-linux-gnu/libc.so.6 myramdisk/lib/
+  cp /lib64/ld-linux-x86-64.so.2 myramdisk/lib64/
+
+  mkdir myramdisk/usr/share/terminfo/v
+  cp /usr/share/terminfo/v/vt100 myramdisk/usr/share/terminfo/v/
+
+  ```
 
 - **Explanation:**
 
-  `put your answer here`
+  ```
+  copy file binary nano ke myramdisk/bin untuk dapat menjalankan text editor nano
+  
+  buat direktori lib dan lib64 untuk menyimpan isi library yang dibutuhkan nano agar dapat berjalan
+  copy library nano ke direktori library di folder myramdisk
+
+  buat direktori usr/share/terminfo/v
+  copy file vt100 milik linux ke dalam myramdisk
+
+  terminfo menyediakan informasi tentang terminal saat ini agar nano bisa berkomunikasi dengan terminal  
+  ```
 
 - **Screenshot:**
 
-  `put your answer here`
+  ![image](https://github.com/user-attachments/assets/dc20afeb-5de8-4621-b372-c1298d57b229)
+  ![image](https://github.com/user-attachments/assets/69fff6f2-cc61-4056-9594-51cb50708e6f)
+
 
 ### Soal 10
 
@@ -329,20 +398,52 @@ praktikan2:praktikan2
 
 - **Code:**
 
-  `put your answer here`
+  ```
+  mkdir -p osbudiman/boot/grub
+
+  cp bzImage osbudiman/boot
+  cp myramdisk.gz osbudiman/boot
+
+  grub.cfg
+  set default=0
+  set timeout=-1
+  
+  menuentry "OSBudiman" {
+    linux /boot/bzImage
+    initrd /boot/myramdisk.gz
+  }
+
+  grub-mkrescue -o osbudiman.iso osbudiman
+
+  qemu-system-x86_64 -smp 2 -m 256 -nographic -vga std -cdrom osbudiman.iso
+
+  
+  ```
 
 - **Explanation:**
 
-  `put your answer here`
+  ```
+  buat direktori osbudiman dalam folder osboot untuk menyimpan file grub
+  copy file bzimage dan myramdisk.gz ke boot
+
+  buat file config yang menjalankan grub
+  timeout=-1 agar tidak perlu waktu untuk memilih/tidak ada timer
+
+  buat file iso
+
+  jalankan qemu dengan file osbudiman.iso
+  ```
 
 - **Screenshot:**
 
-  `put your answer here`
+  ![Screenshot from 2025-05-23 20-58-39](https://github.com/user-attachments/assets/c400c18c-5eeb-4498-b5b8-64ef5b72b1e1)
 
 ---
 
 Pada akhirnya sistem operasi Budiman yang telah kamu buat dengan susah payah dikumpulkan ke Dosen mengatasnamakan Budiman. Kamu tidak diberikan credit apapun. Budiman pun tidak memberikan kata terimakasih kepadamu. Kamupun kecewa tetapi setidaknya kamu telah belajar untuk menjadi pembuat sistem operasi sederhana yang andal. Selamat!
 
 _At last, the OS you painstakingly created was submitted to the lecturer under Budiman's name. You received no credit. Budiman didn't even thank you. You feel disappointed, but at least you've learned to become a reliable creator of simple operating systems. Congratulations!_
+
+
 
 
