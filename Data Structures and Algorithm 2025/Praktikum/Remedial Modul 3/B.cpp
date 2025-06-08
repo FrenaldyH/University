@@ -55,6 +55,7 @@ int main()
         for(int &ch : adj[cur]) {
             if(!vis[ch]) {
                 dis[ch] = dis[cur] + (vis[ch] = 1); 
+                bfs.push(ch);
             }
         }
     }
