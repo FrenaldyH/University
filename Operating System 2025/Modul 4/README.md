@@ -11,7 +11,7 @@
 
 ### Daftar Soal (Task List)
 
-- [Task 1 - FUSecure](./task-1.txt)
+- [Task 1 - FUSecure](./Modul-4/task-1.txt)
 
 - [Task 2 - LawakFS++](/task-2/)
 
