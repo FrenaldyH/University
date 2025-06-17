@@ -11,7 +11,7 @@
 
 ### Daftar Soal (Task List)
 
-- [Task 1 - FUSecure](University/Operating-System-2025/Modul-4/task-1/)
+- [Task 1 - FUSecure](/University/Operating-System-2025/Modul-4/task-1/)
 
 - [Task 2 - LawakFS++](/task-2/)
 
