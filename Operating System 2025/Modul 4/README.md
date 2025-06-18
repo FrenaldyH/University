@@ -55,7 +55,7 @@ Untuk mengatasi hal tersebut, kami membuat filesystem terkutuk bernama *LawakFS+
 
 **Answer:**
 - **Explanation:**
-    > Disini saya membuat folder task_2 yang isinya, yaitu file LawakFS.c, dictionary sumber, dan dictionary mount_point. Di dalam dictionary sumber nanti akan diisi file-file yang akan dicoba
+    > Disini saya membuat folder task_2 yang isinya, yaitu file LawakFS.c, dictionary sumber, dan dictionary mount_point. Di dalam dictionary sumber nanti akan diisi file-file yang akan difilter
 
 - **Code:**
   ```
