@@ -150,7 +150,7 @@ Semua file yang ditampilkan dalam FUSE mountpoint harus *ekstensinya disembunyik
 
   ```
 - **Explanation:**
-  > find_real_path merupakan fungsi yang menerima path tanpa ekstensi kemudian menerjemahkannya ke dalam path asli
+  > find_real_path merupakan fungsi yang menerima path tanpa ekstensi kemudian menerjemahkannya ke dalam path asli. Pertama-tama, fungsi ini membuat asumsi awal dengan menggabungkan path direktori sumber dan path virtual untuk membentuk sebuah path tebakan. Sebagai langkah optimasi, kemudian langsung memeriksa apakah path tebakan ini merupakan sebuah direktori yang valid; jika ya, maka path tersebut dianggap benar dan fungsi selesai. Namun, jika path tersebut bukan direktori, maka proses pencarian yang lebih mendalam dimulai dengan memecah path virtual menjadi dua komponen: direktori induknya dan nama dasar filenya (short_name). Selanjutnya, fungsi akan membuka lokasi direktori induk yang sesungguhnya di dalam direktori sumber, lalu melakukan iterasi terhadap setiap file di dalamnya. Untuk setiap file nyata yang ditemukan, ekstensinya akan "dibuang" sementara untuk dibandingkan dengan short_name yang diberikan pengguna. Apabila ditemukan kecocokan, fungsi akan segera membangun path lengkap yang benar ke file nyata tersebut (lengkap dengan ekstensinya) dan menyimpannya sebagai hasil akhir. Namun, jika setelah memeriksa seluruh isi direktori tidak ada satu pun file yang cocok, fungsi akan dengan sengaja mengembalikan path asumsi awal yang salah. Langkah "kegagalan yang disengaja" ini sangat penting, karena memastikan bahwa operasi selanjutnya seperti open atau lstat akan gagal secara alami dengan eror "No such file or directory", yang merupakan perilaku yang benar dan diharapkan.
   
 
 
