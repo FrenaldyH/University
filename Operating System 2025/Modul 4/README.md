@@ -85,7 +85,67 @@ Semua file yang ditampilkan dalam FUSE mountpoint harus *ekstensinya disembunyik
 - *Perilaku:* Meskipun ekstensi disembunyikan, mengakses file (misalnya, cat /mnt/your_mountpoint/document) harus dipetakan dengan benar ke path dan nama aslinya (misalnya, source_dir/document.pdf).
 
 **Answer:**
-  > Pada tahap ini saya mengimplementasikan fungsi-fungsi FUSE 
+  > Pada tahap ini saya mengimplementasikan fungsi-fungsi FUSE dan memodifikasinya agar dapat melakukan filter dan me-mounting ke sumber aslinya tanpa extensi
+
+- **code:**
+  ```
+    static void find_real_path(char fpath[1000], const char *path) {
+        char temp_path[1000];   
+        sprintf(temp_path, "%s%s", source_dir, path);
+    
+        struct stat st;
+        if (lstat(temp_path, &st) == 0 && S_ISDIR(st.st_mode)) {
+            strcpy(fpath, temp_path);
+            return;
+        }
+    
+        char parent_path[1000];
+        char *last_slash = strrchr(path, '/');
+        if (last_slash == NULL) {
+            strcpy(parent_path, "/");
+        } else {
+            strncpy(parent_path, path, last_slash - path + 1);
+            parent_path[last_slash - path + 1] = '\0';
+        }
+        
+        char source_parent_path[1000];
+        sprintf(source_parent_path, "%s%s", source_dir, parent_path);
+    
+        char *short_name = (last_slash == NULL) ? (char*)path : last_slash + 1;
+        
+        DIR *dp = opendir(source_parent_path);
+        if (dp == NULL) {
+            strcpy(fpath, temp_path);
+            return;
+        }
+    
+        struct dirent *de;
+        int found = 0;
+        while ((de = readdir(dp)) != NULL) {
+            if (de->d_type == DT_REG) {
+                char real_name_base[256];
+                strcpy(real_name_base, de->d_name);
+                char *last_dot = strrchr(real_name_base, '.');
+                if (last_dot != NULL) {
+                    *last_dot = '\0';
+                }
+    
+                if (strcmp(short_name, real_name_base) == 0) {
+                    sprintf(fpath, "%s%s", source_parent_path, de->d_name);
+                    found = 1;
+                    break;
+                }
+            }
+        }
+        closedir(dp);
+    
+        if (!found) {
+            strcpy(fpath, temp_path);
+        }
+    }
+
+
+  ```
 
 
 
