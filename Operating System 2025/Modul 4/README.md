@@ -55,7 +55,7 @@ Untuk mengatasi hal tersebut, kami membuat filesystem terkutuk bernama *LawakFS+
 
 **Answer:**
 - **Explanation:**
-    > Disini saya membuat folder task_2 yang isinya, yaitu file LawakFS.c, dictionary sumber, dan dictionary mount_point. Di dalam dictionary sumber nanti akan diisi file-file yang akan difilter
+    > Disini saya membuat folder task_2 yang isinya, yaitu file LawakFS.c, dictionary sumber, dan dictionary mount_point. Di dalam dictionary sumber nanti akan diisi file-file yang akan difilter. Di dalam file LawakFS.c saya mematikan beberapa fungsi agar file system LawakFS.c hanya dapat menjalankan mode read-only.
 
 - **Code:**
   ```
@@ -65,8 +65,27 @@ Untuk mengatasi hal tersebut, kami membuat filesystem terkutuk bernama *LawakFS+
     mkdir mount_point
     touch lawakFS.c
   ```
+  ```
+    static int lawak_mkdir(const char *path, mode_t mode) { return -EROFS; }
+    static int lawak_rmdir(const char *path) { return -EROFS; }
+    static int lawak_unlink(const char *path) { return -EROFS; }
+    static int lawak_write(const char *path, const char *buf, size_t size, off_t offset, struct fuse_file_info *fi) { return -EROFS; }
+    static int lawak_rename(const char *from, const char *to) { return -EROFS; }
+    static int lawak_truncate(const char *path, off_t size) { return -EROFS; }
+    static int lawak_create(const char *path, mode_t mode, struct fuse_file_info *fi) { return -EROFS; }
+  ```
+  > 
+#### a. Ekstensi File Tersembunyi
 
+Setelah beberapa hari menggunakan filesystem biasa, Teja menyadari bahwa ekstensi file selalu membuat orang-orang bisa mengetahui jenis file dengan mudah. "Ini terlalu mudah ditebak!" pikirnya. Dia ingin membuat sistem yang lebih misterius, di mana orang harus benar-benar membuka file untuk mengetahui isinya.
 
+Semua file yang ditampilkan dalam FUSE mountpoint harus *ekstensinya disembunyikan*.
+
+- *Contoh:* Jika file asli adalah document.pdf, perintah ls di dalam direktori FUSE hanya menampilkan document.
+- *Perilaku:* Meskipun ekstensi disembunyikan, mengakses file (misalnya, cat /mnt/your_mountpoint/document) harus dipetakan dengan benar ke path dan nama aslinya (misalnya, source_dir/document.pdf).
+
+**Answer:**
+  > Pada tahap ini saya mengimplementasikan fungsi-fungsi FUSE 
 
 
 
