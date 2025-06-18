@@ -53,6 +53,19 @@ Untuk mengatasi hal tersebut, kami membuat filesystem terkutuk bernama *LawakFS+
 
 > *Catatan:* Ketika pengguna mencoba menggunakan perintah seperti touch, rm, mv, atau perintah lain yang melakukan operasi tulis, mereka harus menerima error "Permission denied" atau "Read-only file system" yang jelas.
 
+**Answer:**
+- **Explanation:**
+    > Disini saya membuat folder task_2 yang isinya, yaitu file LawakFS.c, dictionary sumber, dan dictionary mount_point. Di dalam dictionary sumber nanti akan diisi file-file yang akan dicoba
+
+- **Code:**
+  ```
+    mkdir task_2
+    cd task_2
+    mkdir sumber
+    mkdir mount_point
+    touch lawakFS.c
+  ```
+
 
 
 
