@@ -23,6 +23,36 @@
 
 ### Laporan task 2 - LawakFS++
 
+Teja adalah seorang penggemar sepak bola yang sangat bersemangat. Namun, akhir-akhir ini, tim kesayangannya selalu tampil kurang memuaskan di setiap pertandingan. Kekalahan demi kekalahan membuat Teja muak dan kesal. "Tim lawak!" begitu umpatnya setiap kali timnya gagal meraih kemenangan. Kekecewaan Teja yang mendalam ini menginspirasi sebuah ide: bagaimana jika ada sebuah filesystem yang bisa menyensor hal-hal "lawak" di dunia ini?
+
+Untuk mengatasi hal tersebut, kami membuat filesystem terkutuk bernama *LawakFS++* yang mengimplementasikan kebijakan akses yang ketat, filtering konten dinamis, dan kontrol akses berbasis waktu untuk file tertentu. Filesystem ini dirancang sebagai read-only dan akan menerapkan perilaku khusus untuk akses file, termasuk logging dan manajemen konfigurasi.
+
+- Kamu boleh memilih direktori sumber dan mount point apa pun untuk filesystem kamu.
+
+- Kamu *wajib* mengimplementasikan setidaknya fungsi-fungsi berikut dalam struct fuse_operations kamu:
+
+  - getattr
+  - readdir
+  - read
+  - open
+  - access
+
+- Kamu diperbolehkan menyertakan fungsi tambahan seperti init, destroy, atau readlink jika diperlukan untuk implementasi kamu.
+
+- *LawakFS++ harus benar-benar read-only.* Setiap percobaan untuk melakukan operasi tulis dalam FUSE mountpoint harus *gagal* dan mengembalikan error EROFS (Read-Only File System).
+
+- System call berikut, dan perintah yang bergantung padanya, harus diblokir secara eksplisit:
+
+  - write()
+  - truncate()
+  - create()
+  - unlink()
+  - mkdir()
+  - rmdir()
+  - rename()
+
+> *Catatan:* Ketika pengguna mencoba menggunakan perintah seperti touch, rm, mv, atau perintah lain yang melakukan operasi tulis, mereka harus menerima error "Permission denied" atau "Read-only file system" yang jelas.
+
 
 
 
