@@ -9,7 +9,7 @@
 
 </div>
 
-### Daftar Soal (Task List)
+## Daftar Soal (Task List)
 
 - [Task 1 - FUSecure](/task-1/)
 
@@ -19,8 +19,9 @@
 
 - [Task 4 - LilHabOS](/task-4/)
 
-### Laporan Resmi Praktikum Modul 4 (Module 4 Lab Work Report)
+## Laporan Resmi Praktikum Modul 4 (Module 4 Lab Work Report)
 
-Tulis laporan resmi di sini!
+### Laporan task 2 - LawakFS++
 
-Write your lab work report here!
+
+
