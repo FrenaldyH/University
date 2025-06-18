@@ -87,6 +87,22 @@ Semua file yang ditampilkan dalam FUSE mountpoint harus *ekstensinya disembunyik
 
 **Answer:**
   > Pada tahap ini saya mengimplementasikan fungsi-fungsi FUSE dan memodifikasinya agar dapat melakukan filter dan me-mounting ke sumber aslinya tanpa extensi
+  ```
+    fren@fren-virtual-machine:~/task_2$ ls -l mount_point/
+    total 0
+    fren@fren-virtual-machine:~/task_2$ ./lawakFS mount_point
+    fren@fren-virtual-machine:~/task_2$ ls -l mount_point/
+    total 4
+    -rw-rw-r-- 1 fren fren 47 Jun 18 14:31 artikel
+    -rw-rw-r-- 1 fren fren  0 Jun 18 14:32 gambar
+    fren@fren-virtual-machine:~/task_2$ cat mount_point/artikel 
+    tim sepak bola chelsea dan mu adalah tim lawak
+    fren@fren-virtual-machine:~/task_2$ ls -l sumber/
+    total 8
+    -rw-rw-r-- 1 fren fren 47 Jun 18 14:31 artikel.txt
+    -rw-rw-r-- 1 fren fren  0 Jun 18 14:32 gambar.jpg
+    -rw-rw-r-- 1 fren fren 24 Jun 18 14:32 secret.log
+  ```
 
 ##### Fungsi find_real_path
 - **Code:**
@@ -250,7 +266,19 @@ File yang nama dasarnya adalah **secret** (misalnya, secret.txt, secret.zip) han
 - *Pembatasan:* Di luar rentang waktu yang ditentukan, setiap percobaan untuk membuka, membaca, atau bahkan melakukan list file secret harus menghasilkan error ENOENT (No such file or directory).
 - *Petunjuk:* Kamu perlu mengimplementasikan kontrol akses berbasis waktu ini dalam operasi FUSE access() dan/atau getattr() kamu.
 
-  
+**Answer:** 
+```
+  ren@fren-virtual-machine:~/task_2$ fusermount -u mount_point
+  fren@fren-virtual-machine:~/task_2$ gcc -Wall -D_FILE_OFFSET_BITS=64 `pkg-config fuse --cflags` lawakFS.c -o lawakFS `pkg-config fuse --libs`
+  fren@fren-virtual-machine:~/task_2$ ./lawakFS mount_point
+  fren@fren-virtual-machine:~/task_2$ ls -l mount_point/
+  total 4
+  -rw-rw-r-- 1 fren fren 47 Jun 18 14:31 artikel
+  -rw-rw-r-- 1 fren fren  0 Jun 18 14:32 gambar
+  fren@fren-virtual-machine:~/task_2$ cat mount_point/secret
+  cat: mount_point/secret: No such file or directory
+  fren@fren-virtual-machine:~/task_2$ cd mount_point/
+```
 
 
   
