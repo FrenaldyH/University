@@ -152,7 +152,7 @@ Semua file yang ditampilkan dalam FUSE mountpoint harus *ekstensinya disembunyik
 - **Explanation:**
   > find_real_path merupakan fungsi yang menerima path tanpa ekstensi kemudian menerjemahkannya ke dalam path asli. Pertama-tama, fungsi ini membuat asumsi awal dengan menggabungkan path direktori sumber dan path virtual untuk membentuk sebuah path tebakan. Sebagai langkah optimasi, kemudian langsung memeriksa apakah path tebakan ini merupakan sebuah direktori yang valid; jika ya, maka path tersebut dianggap benar dan fungsi selesai. Namun, jika path tersebut bukan direktori, maka proses pencarian yang lebih mendalam dimulai dengan memecah path virtual menjadi dua komponen: direktori induknya dan nama dasar filenya (short_name). Selanjutnya, fungsi akan membuka lokasi direktori induk yang sesungguhnya di dalam direktori sumber, lalu melakukan iterasi terhadap setiap file di dalamnya. Untuk setiap file nyata yang ditemukan, ekstensinya akan "dibuang" sementara untuk dibandingkan dengan short_name yang diberikan pengguna. Apabila ditemukan kecocokan, fungsi akan segera membangun path lengkap yang benar ke file nyata tersebut (lengkap dengan ekstensinya) dan menyimpannya sebagai hasil akhir. Namun, jika setelah memeriksa seluruh isi direktori tidak ada satu pun file yang cocok, fungsi akan dengan sengaja mengembalikan path asumsi awal yang salah. Langkah "kegagalan yang disengaja" ini sangat penting, karena memastikan bahwa operasi selanjutnya seperti open atau lstat akan gagal secara alami dengan eror "No such file or directory", yang merupakan perilaku yang benar dan diharapkan.
 
-##### Fungsi lawak_read_dir
+##### Fungsi lawak_readdir
 - **code:**
   ```
     static int lawak_readdir(const char *path, void *buf, fuse_fill_dir_t filler, off_t offset, struct fuse_file_info *fi) {
@@ -184,7 +184,69 @@ Semua file yang ditampilkan dalam FUSE mountpoint harus *ekstensinya disembunyik
 - **Explanation:**
   > Algoritma untuk fungsi lawak_readdir bertujuan untuk menyajikan daftar isi sebuah direktori dengan menyembunyikan ekstensi untuk file biasa. Prosesnya dimulai dengan membentuk path absolut ke direktori sumber yang sebenarnya berdasarkan path virtual yang diminta. Setelah direktori sumber berhasil dibuka, fungsi ini akan melakukan iterasi atau perulangan untuk membaca setiap entri di dalamnya. Di dalam setiap iterasi, sebuah logika kondisional penting dijalankan: fungsi akan memeriksa tipe dari setiap entri. Jika entri tersebut adalah sebuah direktori, namanya akan langsung disajikan kepada pengguna tanpa perubahan. Namun, jika entri tersebut adalah sebuah file reguler, fungsi akan membuat salinan dari nama file tersebut, mencari posisi titik terakhir yang menandakan awal ekstensi, dan memotong string nama di titik tersebut. Hanya nama yang sudah dimodifikasi (tanpa ekstensi) inilah yang kemudian disajikan kepada pengguna. Proses ini berlanjut hingga semua entri dalam direktori telah diperiksa dan disajikan dengan format yang sesuai.
 
+##### Fungsi lawak_getattr
+- **COde:**
+  ```
+    static int lawak_getattr(const char *path, struct stat *stbuf) {
+        int res;
+        char fpath[1000];
+        find_real_path(fpath, path);
+    
+        res = lstat(fpath, stbuf);
+        if (res == -1) return -errno;
+        return 0;
+    }
+  ```
+- **Explanation:**
+  > Algoritma fungsi lawak_getattr dirancang untuk mendapatkan atribut sebuah file atau direktori (seperti ukuran, hak akses, dan waktu modifikasi) dari nama virtual yang mungkin tidak memiliki ekstensi. Karena ia menerima nama yang bisa jadi "palsu", langkah pertamanya yang paling krusial adalah tidak langsung berinteraksi dengan sistem, melainkan mendelegasikan tugas penerjemahan ke fungsi find_real_path. Fungsi ini mengambil nama virtual sebagai input dan mengembalikan path lengkap ke file atau direktori yang sebenarnya di dalam direktori sumber. Setelah path yang benar dan lengkap ini didapatkan, algoritma lawak_getattr menjadi sangat sederhana: ia hanya perlu memanggil fungsi sistem standar lstat pada path nyata tersebut untuk mengisi struktur atribut yang diminta, lalu mengembalikan hasilnya.
 
+##### Fungsi lawak_read
+- **COde:**
+  ```
+    static int lawak_read(const char *path, char *buf, size_t size, off_t offset, struct fuse_file_info *fi) {
+        (void) fi;
+        int res;
+        char fpath[1000];
+        find_real_path(fpath, path);
+    
+        int fd = open(fpath, O_RDONLY);
+        if (fd == -1) return -errno;
+    
+        res = pread(fd, buf, size, offset);
+        if (res == -1) res = -errno;
+    
+        close(fd);
+        return res;
+    }
+  ```
+- **Explanation:**
+  > Algoritma untuk fungsi lawak_read mengikuti pola yang sangat mirip dengan lawak_getattr, di mana tugas utamanya adalah membaca konten dari sebuah file yang diidentifikasi oleh nama virtualnya. Saat dipanggil, fungsi ini tidak bisa langsung membuka path yang diberikan. Sebagai langkah pertama yang wajib, ia memanggil fungsi find_real_path untuk menerjemahkan path virtual (misalnya /artikel) menjadi path absolut yang nyata (.../sumber/artikel.txt). Setelah mendapatkan path yang benar, algoritma ini melanjutkan dengan melakukan urutan operasi file I/O standar: ia memanggil open() pada path nyata untuk mendapatkan file descriptor, kemudian menggunakan pread() untuk membaca sejumlah data dari offset tertentu ke dalam buffer yang disediakan, dan terakhir memanggil close() untuk menutup file. Hasil dari operasi pread inilah yang kemudian dikembalikan ke sistem.
+  
+##### Fungsi lawak_open dan lawak_accsess
+- **COde:**
+  ```
+    static int lawak_open(const char *path, struct fuse_file_info *fi) {
+        char fpath[1000];
+        find_real_path(fpath, path);
+        return 0;
+    }
+  ```
+  ```
+    static int lawak_access(const char *path, int mask) {
+        char fpath[1000];
+        find_real_path(fpath, path);
+        return 0;
+    }
+  ```
+- **Explanation:**
+  > Algoritma untuk fungsi lawak_open dan lawak_access dalam konteks ini berfungsi sebagai penangan awal untuk permintaan akses file. Seperti fungsi-fungsi lainnya yang beroperasi pada file individual, algoritma inti mereka juga diawali dengan keharusan untuk menerjemahkan nama virtual. Keduanya menerima path virtual dari sistem dan segera memanggil find_real_path untuk mengidentifikasi file nyata yang sedang dituju. Dalam implementasi saat ini, setelah path nyata ditemukan, logika mereka sangat sederhana dan hanya mengembalikan nilai 0 yang menandakan keberhasilan, karena pengecekan lebih lanjut akan ditangani oleh sistem atau fungsi read. Meskipun terlihat trivial, pemanggilan find_real_path di sini sangat penting sebagai fondasi untuk memastikan logika di masa depan (seperti pengecekan akses berbasis waktu) diterapkan pada file yang benar.
+
+
+
+  
+
+
+  
 
 
 
