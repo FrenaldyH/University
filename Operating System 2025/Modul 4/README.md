@@ -241,7 +241,14 @@ Semua file yang ditampilkan dalam FUSE mountpoint harus *ekstensinya disembunyik
 - **Explanation:**
   > Algoritma untuk fungsi lawak_open dan lawak_access dalam konteks ini berfungsi sebagai penangan awal untuk permintaan akses file. Seperti fungsi-fungsi lainnya yang beroperasi pada file individual, algoritma inti mereka juga diawali dengan keharusan untuk menerjemahkan nama virtual. Keduanya menerima path virtual dari sistem dan segera memanggil find_real_path untuk mengidentifikasi file nyata yang sedang dituju. Dalam implementasi saat ini, setelah path nyata ditemukan, logika mereka sangat sederhana dan hanya mengembalikan nilai 0 yang menandakan keberhasilan, karena pengecekan lebih lanjut akan ditangani oleh sistem atau fungsi read. Meskipun terlihat trivial, pemanggilan find_real_path di sini sangat penting sebagai fondasi untuk memastikan logika di masa depan (seperti pengecekan akses berbasis waktu) diterapkan pada file yang benar.
 
+#### b. Akses Berbasis Waktu untuk File Secret
 
+Suatu hari, Teja menemukan koleksi foto-foto memalukan dari masa SMA-nya yang tersimpan dalam folder bernama "secret". Dia tidak ingin orang lain bisa mengakses file-file tersebut kapan saja, terutama saat dia sedang tidur atau tidak ada di rumah. "File rahasia hanya boleh dibuka saat jam kerja!" putusnya dengan tegas.
+
+File yang nama dasarnya adalah **secret** (misalnya, secret.txt, secret.zip) hanya dapat diakses *antara pukul 08:00 (8 pagi) dan 18:00 (6 sore) waktu sistem*.
+
+- *Pembatasan:* Di luar rentang waktu yang ditentukan, setiap percobaan untuk membuka, membaca, atau bahkan melakukan list file secret harus menghasilkan error ENOENT (No such file or directory).
+- *Petunjuk:* Kamu perlu mengimplementasikan kontrol akses berbasis waktu ini dalam operasi FUSE access() dan/atau getattr() kamu.
 
   
 
