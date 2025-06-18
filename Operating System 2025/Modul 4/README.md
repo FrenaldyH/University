@@ -267,8 +267,9 @@ File yang nama dasarnya adalah **secret** (misalnya, secret.txt, secret.zip) han
 - *Petunjuk:* Kamu perlu mengimplementasikan kontrol akses berbasis waktu ini dalam operasi FUSE access() dan/atau getattr() kamu.
 
 **Answer:** 
+> Disini saya menambahkan fungsi agar file tertentu hanya bisa diakses di jam tertentu (file secret). dalam proses ini juga saya menambahkan beberapa subcode pada fungsi yang sudah ada
 ```
-  ren@fren-virtual-machine:~/task_2$ fusermount -u mount_point
+  fren@fren-virtual-machine:~/task_2$ fusermount -u mount_point
   fren@fren-virtual-machine:~/task_2$ gcc -Wall -D_FILE_OFFSET_BITS=64 `pkg-config fuse --cflags` lawakFS.c -o lawakFS `pkg-config fuse --libs`
   fren@fren-virtual-machine:~/task_2$ ./lawakFS mount_point
   fren@fren-virtual-machine:~/task_2$ ls -l mount_point/
@@ -277,10 +278,59 @@ File yang nama dasarnya adalah **secret** (misalnya, secret.txt, secret.zip) han
   -rw-rw-r-- 1 fren fren  0 Jun 18 14:32 gambar
   fren@fren-virtual-machine:~/task_2$ cat mount_point/secret
   cat: mount_point/secret: No such file or directory
-  fren@fren-virtual-machine:~/task_2$ cd mount_point/
+  fren@fren-virtual-machine:~/task_2$ ls -l sumber/
+  total 8
+  -rw-rw-r-- 1 fren fren 47 Jun 18 14:31 artikel.txt
+  -rw-rw-r-- 1 fren fren  0 Jun 18 14:32 gambar.jpg
+  -rw-rw-r-- 1 fren fren 24 Jun 18 14:32 secret.log
+
 ```
+##### Fungsi is_secret_and_access_denied
+  - **Code:**
+    ```
+      static int is_secret_and_access_denied(const char *path) {
+        char *path_basename = strrchr(path, '/');
+        if (path_basename == NULL) {
+            path_basename = (char*)path;
+        } else {
+            path_basename++;
+        }
+    
+        char name_without_ext[256];
+        strcpy(name_without_ext, path_basename);
+    
+        char *last_dot = strrchr(name_without_ext, '.');
+        if (last_dot != NULL) {
+            *last_dot = '\0';
+        }
+    
+        if (strcmp(name_without_ext, "secret") == 0) {
+            time_t now;
+            struct tm *local_time;
+            time(&now);
+            local_time = localtime(&now);
+            int current_hour = local_time->tm_hour;
+    
+            if (current_hour < 8 || current_hour >= 18) {
+                return 1; 
+            }
+        }
+    
+        return 0; 
+    }
+    ```
+- **Explanation:**
+  > Algoritma fungsi ini adalah sebagai pusat pengambilan keputusan untuk aturan akses file rahasia. Saat menerima sebuah path, ia pertama-tama mengekstrak nama dasar file tersebut dan membuang ekstensinya untuk mendapatkan nama inti. Nama inti ini kemudian dibandingkan dengan string "secret" yang sudah di-hardcode. Jika namanya tidak cocok, fungsi ini langsung menyimpulkan bahwa ini bukan file yang diatur oleh aturan waktu dan mengizinkan akses. Namun, jika namanya cocok dengan "secret", fungsi akan melanjutkan ke tahap pengecekan waktu. Ia akan mengambil waktu sistem saat ini, mengonversinya ke waktu lokal, dan mengekstrak jamnya. Jam saat ini kemudian dibandingkan dengan rentang waktu yang diizinkan (antara jam 8 pagi dan sebelum jam 6 sore). Jika waktu saat ini berada di luar rentang tersebut, fungsi akan mengembalikan sinyal bahwa akses ditolak; jika tidak, akses diizinkan.
 
-
+##### Penambahan subcode di beberapa fungsi 
+  - **Code:**
+    ```
+      if (is_secret_and_access_denied(path)) {
+          return -ENOENT;
+      }
+    ```
+  - **Explanation:**
+    > Penambahan fungsi ini dilakukan di fungsi lawak_getaatr, lawak_readdir, dan lawak_access
   
 
 
