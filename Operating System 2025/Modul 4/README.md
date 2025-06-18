@@ -54,8 +54,6 @@ Untuk mengatasi hal tersebut, kami membuat filesystem terkutuk bernama *LawakFS+
 > *Catatan:* Ketika pengguna mencoba menggunakan perintah seperti touch, rm, mv, atau perintah lain yang melakukan operasi tulis, mereka harus menerima error "Permission denied" atau "Read-only file system" yang jelas.
 
 **Answer:**
-- **Explanation:**
-    > Disini saya membuat folder task_2 yang isinya, yaitu file LawakFS.c, dictionary sumber, dan dictionary mount_point. Di dalam dictionary sumber nanti akan diisi file-file yang akan difilter. Di dalam file LawakFS.c saya mematikan beberapa fungsi agar file system LawakFS.c hanya dapat menjalankan mode read-only.
 
 - **Code:**
   ```
@@ -74,7 +72,10 @@ Untuk mengatasi hal tersebut, kami membuat filesystem terkutuk bernama *LawakFS+
     static int lawak_truncate(const char *path, off_t size) { return -EROFS; }
     static int lawak_create(const char *path, mode_t mode, struct fuse_file_info *fi) { return -EROFS; }
   ```
-  > 
+  
+- **Explanation:**
+    > Disini saya membuat folder task_2 yang isinya, yaitu file LawakFS.c, dictionary sumber, dan dictionary mount_point. Di dalam dictionary sumber nanti akan diisi file-file yang akan difilter. Di dalam file LawakFS.c saya mematikan beberapa fungsi agar file system LawakFS.c hanya dapat menjalankan mode read-only.
+  
 #### a. Ekstensi File Tersembunyi
 
 Setelah beberapa hari menggunakan filesystem biasa, Teja menyadari bahwa ekstensi file selalu membuat orang-orang bisa mengetahui jenis file dengan mudah. "Ini terlalu mudah ditebak!" pikirnya. Dia ingin membuat sistem yang lebih misterius, di mana orang harus benar-benar membuka file untuk mengetahui isinya.
@@ -87,8 +88,11 @@ Semua file yang ditampilkan dalam FUSE mountpoint harus *ekstensinya disembunyik
 **Answer:**
   > Pada tahap ini saya mengimplementasikan fungsi-fungsi FUSE dan memodifikasinya agar dapat melakukan filter dan me-mounting ke sumber aslinya tanpa extensi
 
-- **code:**
+##### Fungsi find_real_path:
+- **Code:**
   ```
+    static const char *source_dir = "/home/fren/task_2/sumber";
+
     static void find_real_path(char fpath[1000], const char *path) {
         char temp_path[1000];   
         sprintf(temp_path, "%s%s", source_dir, path);
@@ -144,8 +148,10 @@ Semua file yang ditampilkan dalam FUSE mountpoint harus *ekstensinya disembunyik
         }
     }
 
-
   ```
+- **Explanation:**
+  > find_real_path merupakan fungsi yang menerima path tanpa ekstensi kemudian menerjemahkannya ke dalam path asli
+  
 
 
 
