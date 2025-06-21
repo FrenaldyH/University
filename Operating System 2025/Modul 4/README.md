@@ -518,6 +518,108 @@ Di mana:
 
 > *Persyaratan:* Kamu *hanya diwajibkan* untuk mencatat operasi read dan access yang berhasil. Logging operasi lain (misalnya, write yang gagal) bersifat opsional.
 
+**Answer:**
+> Disini saya menambahkan fungsi baru untung loging serta menambahkannya ke beberapa fungsi yang lain
+```
+  fren@fren-virtual-machine:~/task_2$ sudo gcc -Wall -D_FILE_OFFSET_BITS=64 `pkg-config fuse --cflags` lawakFS.c -o lawakFS `pkg-config fuse --libs` -lb64
+  [sudo] password for fren: 
+  fren@fren-virtual-machine:~/task_2$ sudo bash
+  root@fren-virtual-machine:/home/fren/task_2# sudo ./lawakFS mount_point
+  root@fren-virtual-machine:/home/fren/task_2# ls -l mount_point/
+  total 8
+  -rw-rw-r-- 1 fren fren   47 Jun 18 14:31 artikel
+  -rw-rw-r-- 1 fren fren 1024 Jun 22 04:42 gambar
+  root@fren-virtual-machine:/home/fren/task_2# cat mount_point/artikel
+  tim sepak bola lawak dan lawak adalah tim lawakroot@fren-virtual-machine:/home/fren/task_2# sudo tail -f /var/log/lawakfs.log
+  [2025-06-22 05:34:21] [0] [READ] [/artikel]
+  ^C
+  root@fren-virtual-machine:/home/fren/task_2# sudo fusermount -u mount_point
+  root@fren-virtual-machine:/home/fren/task_2# exit
+  exit
+```
+##### Penambahan fungsi loging 
+- **Code:**
+  ```
+    void loging(const char* action, const char* path) {
+        FILE *log_file = fopen("/var/log/lawakfs.log", "a");
+        if (log_file == NULL) {
+            return;
+        }
+    
+        time_t now;
+        time(&now);
+        struct tm *local_time = localtime(&now);
+    
+        char timestamp[20];
+        strftime(timestamp, sizeof(timestamp), "%Y-%m-%d %H:%M:%S", local_time);
+    
+        uid_t uid = fuse_get_context()->uid;
+    
+        fprintf(log_file, "[%s] [%d] [%s] [%s]\n", timestamp, uid, action, path);
+    
+        fclose(log_file);
+    }
+  ```
+  > Fungsi loging ini dibuat sebagai prosedur terpusat untuk mencatat semua aktivitas penting yang terjadi di dalam filesystem. Setiap kali sebuah aksi yang perlu dicatat (seperti READ atau ACCESS) berhasil dilakukan, fungsi ini akan dipanggil. Secara otomatis, ia akan mengumpulkan empat jenis data: timestamp waktu kejadian yang presisi, User ID (UID) dari pengguna yang melakukan aksi, jenis aksi itu sendiri, serta path dari file yang diakses. Semua informasi ini kemudian dirangkai menjadi satu baris teks dengan format standar yang telah ditentukan dan langsung ditambahkan ke baris paling akhir dari file /var/log/lawakfs.log, sehingga setiap aktivitas tercatat secara kronologis tanpa menghapus data log sebelumnya.
+
+#### e. Konfigurasi
+
+Setelah menggunakan filesystemnya beberapa minggu, Teja menyadari bahwa kebutuhannya berubah-ubah. Kadang dia ingin menambah kata-kata baru ke daftar filter, kadang dia ingin mengubah jam akses file secret, atau bahkan mengubah nama file secret itu sendiri. "Saya tidak mau repot-repot kompilasi ulang setiap kali ingin mengubah pengaturan!" keluhnya. Akhirnya dia memutuskan untuk membuat sistem konfigurasi eksternal yang fleksibel.
+
+Untuk memastikan fleksibilitas, parameter-parameter berikut *tidak boleh di-hardcode* dalam source code lawak.c kamu. Sebaliknya, mereka harus dapat dikonfigurasi melalui file konfigurasi eksternal (misalnya, lawak.conf):
+
+- *Nama file dasar* dari file 'secret' (misalnya, secret).
+- *Waktu mulai* untuk mengakses file 'secret'.
+- *Waktu berakhir* untuk mengakses file 'secret'.
+- *Daftar kata-kata yang dipisahkan koma* yang akan difilter dari file teks.
+
+**Contoh konten lawak.conf:**
+
+
+FILTER_WORDS=ducati,ferrari,mu,chelsea,prx,onic,sisop
+SECRET_FILE_BASENAME=secret
+ACCESS_START=08:00
+ACCESS_END=18:00
+
+
+FUSE kamu harus membaca dan mem-parse file konfigurasi ini saat inisialisasi.
+
+### Ringkasan Perilaku yang Diharapkan
+
+Untuk memastikan kejelasan, berikut adalah tabel konsolidasi perilaku yang diharapkan untuk skenario tertentu:
+
+| Skenario                                                              | Perilaku yang Diharapkan                                                                         |
+| :-------------------------------------------------------------------- | :----------------------------------------------------------------------------------------------- |
+| Mengakses file di luar waktu yang diizinkan (misalnya, file secret) | Mengembalikan ENOENT (No such file or directory)                                               |
+| Membaca file biner                                                    | Konten harus dioutput dalam *encoding Base64*                                                  |
+| Membaca file teks                                                     | Kata-kata yang difilter harus diganti dengan "lawak"                                           |
+| Melakukan list file di direktori mana pun                                  | Semua ekstensi file harus disembunyikan                                                          |
+| Mencoba menulis, membuat, atau mengganti nama file/direktori          | Mengembalikan EROFS (Read-Only File System)                                                    |
+| Logging operasi file                                                  | Entri baru harus ditambahkan ke /var/log/lawakfs.log untuk setiap operasi read dan access. |
+
+### Contoh Perilaku
+
+bash
+$ ls /mnt/lawak/
+secret   image   readme
+
+$ cat /mnt/lawak/secret
+cat: /mnt/lawak/secret: No such file or directory
+# (Output ini diharapkan jika diakses di luar 08:00-18:00)
+
+$ cat /mnt/lawak/image
+<string base64 dari konten gambar>
+
+$ cat /mnt/lawak/readme
+"Ini adalah filesystem lawak."
+# (Kata "sisop" asli diganti dengan "lawak")
+
+$ sudo tail /var/log/lawakfs.log
+[2025-06-10 14:01:22] [1000] [READ] /readme
+[2025-06-10 14:01:24] [1000] [ACCESS] /secret
+
+
+
 #### **Code LawakFS.c Secara Keseluruhan:**
 ```
   #define _DEFAULT_SOURCE
