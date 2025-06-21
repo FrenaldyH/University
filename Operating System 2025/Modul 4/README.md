@@ -497,12 +497,34 @@ Ketika sebuah file dibuka dan dibaca, isinya harus *secara dinamis difilter atau
     ```
     > Fungsi lawak_read perlu dimodifikasi karena perannya berubah dari sekadar fungsi pass-through data menjadi pemroses konten dinamis. Implementasi awal yang menggunakan pread hanya mampu menyalin potongan data secara langsung tanpa memiliki konteks atas keseluruhan isi file. Sementara itu, fitur filtering pada Bagian C mengharuskan program untuk dapat menganalisis konten secara utuh agar bisa membedakan antara file teks dan biner, serta melakukan manipulasi data yang kompleks seperti penggantian kata atau encoding Base64. Operasi semacam ini tidak dapat dilakukan pada potongan data yang terisolasi karena memerlukan pemahaman global terhadap konten. Oleh karena itu, lawak_read harus dirancang ulang dengan algoritma baru: membaca seluruh file ke dalam buffer memori, melakukan analisis dan transformasi pada buffer tersebut, baru kemudian menyajikan data hasil transformasi kepada pengguna.
 
+#### d. Logging Akses
 
+Sebagai seorang yang paranoid, Teja merasa perlu untuk mencatat setiap aktivitas yang terjadi di filesystemnya. "Siapa tahu ada yang mencoba mengakses file-file penting saya tanpa izin," gumamnya sambil menyiapkan sistem logging. Dia ingin setiap gerakan tercatat dengan detail, lengkap dengan waktu dan identitas pelakunya.
+
+Semua operasi akses file yang dilakukan dalam LawakFS++ harus *dicatat* ke file yang terletak di **/var/log/lawakfs.log**.
+
+Setiap entri log harus mematuhi format berikut:
+
+
+[YYYY-MM-DD HH:MM:SS] [UID] [ACTION] [PATH]
+
+
+Di mana:
+
+- **YYYY-MM-DD HH:MM:SS**: Timestamp operasi.
+- **UID**: User ID pengguna yang melakukan aksi.
+- **ACTION**: Jenis operasi FUSE (misalnya, READ, ACCESS, GETATTR, OPEN, READDIR).
+- **PATH**: Path ke file atau direktori dalam FUSE mountpoint (misalnya, /secret, /images/photo.jpg).
+
+> *Persyaratan:* Kamu *hanya diwajibkan* untuk mencatat operasi read dan access yang berhasil. Logging operasi lain (misalnya, write yang gagal) bersifat opsional.
 
 #### **Code LawakFS.c Secara Keseluruhan:**
 ```
   #define _DEFAULT_SOURCE
   #define FUSE_USE_VERSION 28
+  #include <time.h>
+  #include <stdlib.h>
+  #include <b64/cencode.h>
   #include <fuse.h>
   #include <stdio.h>
   #include <string.h>
@@ -513,6 +535,20 @@ Ketika sebuah file dibuka dan dibaca, isinya harus *secara dinamis difilter atau
   #include <sys/time.h>
   
   static const char *source_dir = "/home/fren/task_2/sumber";
+  
+  const char* filter_words[] = {"mu", "chelsea", "onic", "sisop"};
+  const int num_filter_words = sizeof(filter_words) / sizeof(filter_words[0]);
+  
+  static int is_binary(const void *data, size_t size) {
+      const char *bytes = (const char *)data;
+      for (size_t i = 0; i < size; i++) {
+          if (bytes[i] == '\0') {
+              return 1;
+          }
+      }
+      return 0;
+  }
+  
   
   static void find_real_path(char fpath[1000], const char *path) {
       char temp_path[1000];   
@@ -656,19 +692,84 @@ Ketika sebuah file dibuka dan dibaca, isinya harus *secara dinamis difilter atau
   }
   
   static int lawak_read(const char *path, char *buf, size_t size, off_t offset, struct fuse_file_info *fi) {
-      (void) fi;
-      int res;
+      (void)fi;
       char fpath[1000];
       find_real_path(fpath, path);
   
       int fd = open(fpath, O_RDONLY);
       if (fd == -1) return -errno;
   
-      res = pread(fd, buf, size, offset);
-      if (res == -1) res = -errno;
-  
+      struct stat st;
+      fstat(fd, &st);
+      size_t file_size = st.st_size;
+      if (file_size == 0) {
+          close(fd);
+          return 0;
+      }
+      
+      char *file_content = (char *)malloc(file_size);
+      if (file_content == NULL) {
+          close(fd);
+          return -ENOMEM;
+      }
+      read(fd, file_content, file_size);
       close(fd);
-      return res;
+  
+      char *transformed_content = NULL;
+      size_t transformed_size = 0;
+  
+      if (is_binary(file_content, file_size)) {
+          size_t b64_buf_size = file_size * 2; 
+          transformed_content = (char *)malloc(b64_buf_size);
+          base64_encodestate b64_state;
+          base64_init_encodestate(&b64_state);
+          int len1 = base64_encode_block(file_content, file_size, transformed_content, &b64_state);
+          int len2 = base64_encode_blockend(transformed_content + len1, &b64_state);
+          transformed_size = len1 + len2;
+      } else {
+          transformed_content = (char *)malloc(file_size * 2 + 1); 
+          char *current_pos = transformed_content;
+          char *input_ptr = file_content;
+  
+          while (input_ptr < file_content + file_size) {
+              char *found_word = NULL;
+              int word_len = 0;
+  
+              for (int i = 0; i < num_filter_words; i++) {
+                  if (strncasecmp(input_ptr, filter_words[i], strlen(filter_words[i])) == 0) {
+                      found_word = (char*)filter_words[i];
+                      word_len = strlen(found_word);
+                      break;
+                  }
+              }
+  
+              if (found_word) {
+                  strcpy(current_pos, "lawak");
+                  current_pos += 5;
+                  input_ptr += word_len;
+              } else {
+                  *current_pos = *input_ptr;
+                  current_pos++;
+                  input_ptr++;
+              }
+          }
+          *current_pos = '\0'; 
+          transformed_size = strlen(transformed_content);
+      }
+      free(file_content); 
+  
+      
+      int bytes_to_copy = 0;
+      if (offset < transformed_size) {
+          bytes_to_copy = transformed_size - offset;
+          if (bytes_to_copy > size) {
+              bytes_to_copy = size;
+          }
+          memcpy(buf, transformed_content + offset, bytes_to_copy);
+      }   
+  
+      free(transformed_content); 
+      return bytes_to_copy;
   }
   
   static int lawak_open(const char *path, struct fuse_file_info *fi) {
