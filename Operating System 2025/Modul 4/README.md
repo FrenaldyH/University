@@ -332,6 +332,173 @@ File yang nama dasarnya adalah **secret** (misalnya, secret.txt, secret.zip) han
   - **Explanation:**
     > Penambahan fungsi ini dilakukan di fungsi lawak_getaatr, lawak_readdir, dan lawak_access
   
+#### c. Filtering Konten Dinamis
+
+Kekesalan Teja terhadap hal-hal "lawak" semakin memuncak ketika dia membaca artikel online yang penuh dengan kata-kata yang membuatnya kesal. Tidak hanya itu, gambar-gambar yang dia lihat juga sering kali tidak sesuai dengan ekspektasinya. "Semua konten yang masuk ke sistem saya harus difilter dulu!" serunya sambil mengepalkan tangan.
+
+Ketika sebuah file dibuka dan dibaca, isinya harus *secara dinamis difilter atau diubah* berdasarkan tipe file yang terdeteksi:
+
+| Tipe File      | Perlakuan                                                                                 |
+| :------------- | :---------------------------------------------------------------------------------------- |
+| *File Teks*  | Semua kata yang dianggap lawak (case-insensitive) harus diganti dengan kata "lawak".    |
+| *File Biner* | Konten biner mentah harus ditampilkan dalam *encoding Base64* alih-alih bentuk aslinya. |
+
+> *Catatan:* Daftar "kata-kata lawak" untuk filtering file teks akan didefinisikan secara eksternal, seperti yang ditentukan dalam persyaratan *e. Konfigurasi*.
+
+**Answer:**
+> Disini saya menambahkan header luar, membuat file biner acak, menambahkan fungsi baru dan memodifikasi salah satu fungsi yang sudah ada
+```
+  fren@fren-virtual-machine:~/task_2$ gcc -Wall -D_FILE_OFFSET_BITS=64 `pkg-config fuse --cflags` lawakFS.c -o lawakFS `pkg-config fuse --libs` -lb64
+  fren@fren-virtual-machine:~/task_2$ ./lawakFS mount_point
+  fren@fren-virtual-machine:~/task_2$ ls -l mount_point/
+  total 4
+  -rw-rw-r-- 1 fren fren 47 Jun 18 14:31 artikel
+  -rw-rw-r-- 1 fren fren  0 Jun 18 14:32 gambar
+  fren@fren-virtual-machine:~/task_2$ cat mount_point/artikel 
+  tim sepak bola lawak dan lawak adalah tim lawakfren@fren-virtual-machine:~/task_2$
+```
+```
+  fren@fren-virtual-machine:~/task_2$ dd if=/dev/urandom of=sumber/gambar.jpg bs=1k count=1
+  1+0 records in
+  1+0 records out
+  1024 bytes (1,0 kB, 1,0 KiB) copied, 0,000404429 s, 2,5 MB/s
+  fren@fren-virtual-machine:~/task_2$ gcc -Wall -D_FILE_OFFSET_BITS=64 `pkg-config fuse --cflags` lawakFS.c -o lawakFS `pkg-config fuse --libs` -lb64
+  fren@fren-virtual-machine:~/task_2$ ./lawakFS mount_point
+  fren@fren-virtual-machine:~/task_2$ cat mount_point/gambar
+  A9BERAgU6f2Ewf25uThgtGB+QegGd2p626F1vECnQpkt6w0XQXqQLn84lI4SiV7hJF/Qv79z
+  v0KU05Rlt5FMpLtr9xYbbhZsmnULSzhWq+gVBdl6OtBw25tgG1U93J2BMwFMijCPoTbfj1Rl
+  Tm9uPGs3OO5yber6MaUo2PQr07PWlDkOiiyQqwRT49LmibfeTdCRWzpLpcj6sz3wYgdiWylZ
+  pJasZQH0VXaubDHfAzwSH839LrJjxi4ZIb8n22tzfrMsvTtu29WD4oEpkG0GKxSThAvVoVCB
+  WyqMTni2Lm48JbG/8s9WkKqVcovoRk8zv/88KJBNdPDLL4jn5/WmLy8Qvt5GVx3zvUDsC++S
+  OJrEvICY978rrzczVMo1GBK5r6HfsW6f0/X9pTOvxyGse/Kzxi9I8ErVumXLvsAdb7q3qFdG
+  3kfoTV3vRPatL3mhVavg9NCp9fVuSabPs1VSp5rRUcWJ9hsV7ZemH5ieHhW4K0g/dzP+Fh6j
+  FnM3C/52UiHYrDT1HGVGftneOa0kuPXLGv4QFDRNRfCrixGEEjbj/06yqIEcmOWw46l4I+rI
+  55xbfhjGvnP3LIWRpMj4qi/hTM0I4b7bfjwZxOhDyd6nTj9E5pdjC0HraAILa8uw7gXTBEbs
+  y83Zd7cN5aKQR77+aYaQBOYefy6aolH+sm/muZrqO4sfkvymwjrmRJQYMrZOKyqKKN3w5e2A
+  n2PgQHi73p+um9bFbGRRPzQ94eePBbLKRIuPpDd90b+D+dJgM/j0WYWOaEIgefxAR8ohjb/J
+  +nXYjuZK5J/8LNvHCHHEhuWKvW6UWILLYmEoU95ow4Qa6VKx6D/0PJfPg1cXTiOwU4Bwmaex
+  Fv1TYwLaxpCPy8mSBKOzRj8TuwC9vUbN0+1ua5wa07/irhqsGUXsd58Y2ap+cqnFTFux2jW5
+  YOYiQ/WImy0bcaoT2L9WHaBj2az1uIvXhbNMY7DaP66x7tKXWUhsqqRBE6BhItB21ICpCQV9
+  Yrfren@fren-virtual-machine:~/task_2$ file mount_point/gambar
+  mount_point/gambar: ASCII text
+  fren@fren-virtual-machine:~/task_2$ fusermount -u mount_point
+```
+##### Penambahan Header baru di Systemfile LawakFS.c
+  - **Code:**
+    ```
+      fren@fren-virtual-machine:~/task_2$ sudo apt-get install libb64-dev
+    ```
+    ```
+      #include <time.h>
+      #include <stdlib.h>
+      #include <b64/cencode.h> 
+    ```
+##### Membuat daftar kata-kata yang disensor
+  - **Code:**
+    ```
+      const char* filter_words[] = {"mu", "chelsea", "onic", "sisop"};
+      const int num_filter_words = sizeof(filter_words) / sizeof(filter_words[0]);
+    ```
+##### Menambahkan fungsi is_binary dan memodifikasi lawak_read
+  - **Code:**
+    ```
+      static int is_binary(const void *data, size_t size) {
+          const char *bytes = (const char *)data;
+          for (size_t i = 0; i < size; i++) {
+              if (bytes[i] == '\0') {
+                  return 1;
+              }
+          }
+          return 0;
+      }
+    ```
+    > Penambahan fungsi is_binary bertujuan agar FS bisa mengecek jenis file yang dibaca (bin / teks)
+    ```
+      static int lawak_read(const char *path, char *buf, size_t size, off_t offset, struct fuse_file_info *fi) {
+          (void)fi;
+          char fpath[1000];
+          find_real_path(fpath, path);
+      
+          int fd = open(fpath, O_RDONLY);
+          if (fd == -1) return -errno;
+      
+          struct stat st;
+          fstat(fd, &st);
+          size_t file_size = st.st_size;
+          if (file_size == 0) {
+              close(fd);
+              return 0;
+          }
+          
+          char *file_content = (char *)malloc(file_size);
+          if (file_content == NULL) {
+              close(fd);
+              return -ENOMEM;
+          }
+          read(fd, file_content, file_size);
+          close(fd);
+      
+          char *transformed_content = NULL;
+          size_t transformed_size = 0;
+      
+          if (is_binary(file_content, file_size)) {
+              size_t b64_buf_size = file_size * 2; 
+              transformed_content = (char *)malloc(b64_buf_size);
+              base64_encodestate b64_state;
+              base64_init_encodestate(&b64_state);
+              int len1 = base64_encode_block(file_content, file_size, transformed_content, &b64_state);
+              int len2 = base64_encode_blockend(transformed_content + len1, &b64_state);
+              transformed_size = len1 + len2;
+          } else {
+              transformed_content = (char *)malloc(file_size * 2 + 1); 
+              char *current_pos = transformed_content;
+              char *input_ptr = file_content;
+      
+              while (input_ptr < file_content + file_size) {
+                  char *found_word = NULL;
+                  int word_len = 0;
+      
+                  for (int i = 0; i < num_filter_words; i++) {
+                      if (strncasecmp(input_ptr, filter_words[i], strlen(filter_words[i])) == 0) {
+                          found_word = (char*)filter_words[i];
+                          word_len = strlen(found_word);
+                          break;
+                      }
+                  }
+      
+                  if (found_word) {
+                      strcpy(current_pos, "lawak");
+                      current_pos += 5;
+                      input_ptr += word_len;
+                  } else {
+                      *current_pos = *input_ptr;
+                      current_pos++;
+                      input_ptr++;
+                  }
+              }
+              *current_pos = '\0'; 
+              transformed_size = strlen(transformed_content);
+          }
+          free(file_content); 
+      
+          
+          int bytes_to_copy = 0;
+          if (offset < transformed_size) {
+              bytes_to_copy = transformed_size - offset;
+              if (bytes_to_copy > size) {
+                  bytes_to_copy = size;
+              }
+              memcpy(buf, transformed_content + offset, bytes_to_copy);
+          }
+      
+          free(transformed_content); 
+          return bytes_to_copy;
+      }
+    ```
+    > Fungsi lawak_read perlu dimodifikasi karena perannya berubah dari sekadar fungsi pass-through data menjadi pemroses konten dinamis. Implementasi awal yang menggunakan pread hanya mampu menyalin potongan data secara langsung tanpa memiliki konteks atas keseluruhan isi file. Sementara itu, fitur filtering pada Bagian C mengharuskan program untuk dapat menganalisis konten secara utuh agar bisa membedakan antara file teks dan biner, serta melakukan manipulasi data yang kompleks seperti penggantian kata atau encoding Base64. Operasi semacam ini tidak dapat dilakukan pada potongan data yang terisolasi karena memerlukan pemahaman global terhadap konten. Oleh karena itu, lawak_read harus dirancang ulang dengan algoritma baru: membaca seluruh file ke dalam buffer memori, melakukan analisis dan transformasi pada buffer tersebut, baru kemudian menyajikan data hasil transformasi kepada pengguna.
+
+
+
 #### **Code LawakFS.c Secara Keseluruhan:**
 ```
   #define _DEFAULT_SOURCE
@@ -540,5 +707,6 @@ File yang nama dasarnya adalah **secret** (misalnya, secret.txt, secret.zip) han
       return fuse_main(argc, argv, &lawak_oper, NULL);
   }
 ```
+
 
 
