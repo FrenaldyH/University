@@ -581,7 +581,6 @@ SECRET_FILE_BASENAME=secret
 ACCESS_START=08:00
 ACCESS_END=18:00
 
-
 FUSE kamu harus membaca dan mem-parse file konfigurasi ini saat inisialisasi.
 
 ### Ringkasan Perilaku yang Diharapkan
@@ -618,7 +617,63 @@ $ sudo tail /var/log/lawakfs.log
 [2025-06-10 14:01:22] [1000] [READ] /readme
 [2025-06-10 14:01:24] [1000] [ACCESS] /secret
 
-
+**Answer:**
+> Disini saya menyempurnakan kode dengan menambahkan config, mengubah beberapa fungsi agar berkesinambungan dengan config dan menambahkan fungsi parse_config
+```
+  fren@fren-virtual-machine:~/task_2$ gcc -Wall -D_FILE_OFFSET_BITS=64 `pkg-config fuse --cflags` lawakFS.c -o lawakFS `pkg-config fuse --libs` -lb64
+  fren@fren-virtual-machine:~/task_2$ sudo ./lawakFS -o allow_other mount_point
+  fren@fren-virtual-machine:~/task_2$ ls -l mount_point/
+  ls: cannot access 'mount_point/gambar': No such file or directory
+  ls: cannot access 'mount_point/secret': No such file or directory
+  ls: cannot access 'mount_point/artikel': No such file or directory
+  total 0
+  ?????????? ? ? ? ?            ? artikel
+  ?????????? ? ? ? ?            ? gambar
+  ?????????? ? ? ? ?            ? secret
+  fren@fren-virtual-machine:~/task_2$ cat mount_point/artikel 
+  cat: mount_point/artikel: No such file or directory
+```
+##### Fungsi 
+  - **Code:**
+    ```
+      void parse_config() {
+          FILE *file = fopen(config_path, "r");
+          if (file == NULL) {
+              perror("Gagal membuka file konfigurasi, menggunakan nilai default");
+              strcpy(config.secret_basename, "secret");
+              config.start_hour = 8;
+              config.end_hour = 18;
+              config.filter_word_count = 0;
+              return;
+          }
+      
+          char line[1024];
+          config.filter_word_count = 0;
+      
+          while (fgets(line, sizeof(line), file)) {
+              char *key = strtok(line, "=");
+              char *value = strtok(NULL, "\n");
+              if (key == NULL || value == NULL) continue;
+      
+              if (strcmp(key, "FILTER_WORDS") == 0) {
+                  char *word = strtok(value, ",");
+                  while (word != NULL && config.filter_word_count < 100) {
+                      config.filter_words[config.filter_word_count++] = strdup(word);
+                      word = strtok(NULL, ",");
+                  }
+              } else if (strcmp(key, "SECRET_FILE_BASENAME") == 0) {
+                  strcpy(config.secret_basename, value);
+              } else if (strcmp(key, "ACCESS_START") == 0) {
+                  sscanf(value, "%d:%*d", &config.start_hour);
+              } else if (strcmp(key, "ACCESS_END") == 0) {
+                  sscanf(value, "%d:%*d", &config.end_hour);
+              }
+          }
+          fclose(file);
+      }
+    ```
+  - **Explanation:**
+    > Fungsi parse_config bertanggung jawab untuk membaca dan memuat semua pengaturan eksternal dari file lawak.conf ke dalam memori saat filesystem pertama kali dijalankan. Algoritmanya bekerja dengan membuka file konfigurasi tersebut, lalu membacanya baris per baris dalam sebuah perulangan. Untuk setiap baris, fungsi ini menggunakan strtok untuk memisahkannya menjadi pasangan kunci (key) dan nilai (value) berdasarkan penanda =. Selanjutnya, berdasarkan key yang ditemukan (seperti FILTER_WORDS atau ACCESS_START), ia akan memproses value yang sesuai—baik dengan memecahnya lagi berdasarkan koma untuk daftar kata, menyalinnya langsung untuk nama file, ataupun mengonversinya menjadi angka untuk jam—dan menyimpan hasil akhirnya ke dalam variabel struct config global. Fungsi ini juga dirancang untuk menangani kasus di mana file konfigurasi tidak ditemukan, di mana ia akan menerapkan serangkaian nilai default agar program tetap dapat berjalan dengan stabil.
 
 #### **Code LawakFS.c Secara Keseluruhan:**
 ```
@@ -636,24 +691,78 @@ $ sudo tail /var/log/lawakfs.log
   #include <errno.h>
   #include <sys/time.h>
   
-  static const char *source_dir = "/home/fren/task_2/sumber";
+  struct lawak_config {
+      char secret_basename[256];
+      int start_hour;
+      int end_hour;
+      char* filter_words[100];
+      int filter_word_count;
+  };
   
-  const char* filter_words[] = {"mu", "chelsea", "onic", "sisop"};
-  const int num_filter_words = sizeof(filter_words) / sizeof(filter_words[0]);
+  static struct lawak_config config;
+  static const char *source_dir = "/home/fren/task_2/sumber";
+  static const char *config_path = "/home/fren/task_2/lawak.conf";
   
   static int is_binary(const void *data, size_t size) {
       const char *bytes = (const char *)data;
       for (size_t i = 0; i < size; i++) {
-          if (bytes[i] == '\0') {
-              return 1;
-          }
+          if (bytes[i] == '\0') return 1;
       }
       return 0;
   }
   
+  void loging(const char* action, const char* path) {
+      FILE *log_file = fopen("/var/log/lawakfs.log", "a");
+      if (log_file == NULL) return;
+  
+      time_t now;
+      time(&now);
+      struct tm *local_time = localtime(&now);
+      char timestamp[20];
+      strftime(timestamp, sizeof(timestamp), "%Y-%m-%d %H:%M:%S", local_time);
+      uid_t uid = fuse_get_context()->uid;
+      fprintf(log_file, "[%s] [%d] [%s] [%s]\n", timestamp, uid, action, path);
+      fclose(log_file);
+  }
+  
+  void parse_config() {
+      FILE *file = fopen(config_path, "r");
+      if (file == NULL) {
+          perror("Gagal membuka file konfigurasi, menggunakan nilai default");
+          strcpy(config.secret_basename, "secret");
+          config.start_hour = 8;
+          config.end_hour = 18;
+          config.filter_word_count = 0;
+          return;
+      }
+  
+      char line[1024];
+      config.filter_word_count = 0;
+  
+      while (fgets(line, sizeof(line), file)) {
+          char *key = strtok(line, "=");
+          char *value = strtok(NULL, "\n");
+          if (key == NULL || value == NULL) continue;
+  
+          if (strcmp(key, "FILTER_WORDS") == 0) {
+              char *word = strtok(value, ",");
+              while (word != NULL && config.filter_word_count < 100) {
+                  config.filter_words[config.filter_word_count++] = strdup(word);
+                  word = strtok(NULL, ",");
+              }
+          } else if (strcmp(key, "SECRET_FILE_BASENAME") == 0) {
+              strcpy(config.secret_basename, value);
+          } else if (strcmp(key, "ACCESS_START") == 0) {
+              sscanf(value, "%d:%*d", &config.start_hour);
+          } else if (strcmp(key, "ACCESS_END") == 0) {
+              sscanf(value, "%d:%*d", &config.end_hour);
+          }
+      }
+      fclose(file);
+  }
   
   static void find_real_path(char fpath[1000], const char *path) {
-      char temp_path[1000];   
+      char temp_path[1000];
       sprintf(temp_path, "%s%s", source_dir, path);
   
       struct stat st;
@@ -662,19 +771,26 @@ $ sudo tail /var/log/lawakfs.log
           return;
       }
   
-      char parent_path[1000];
-      char *last_slash = strrchr(path, '/');
+      const char *parent_path_virtual;
+      const char *short_name;
+  
+      const char *last_slash = strrchr(path, '/');
       if (last_slash == NULL) {
-          strcpy(parent_path, "/");
+          parent_path_virtual = ".";
+          short_name = path;
       } else {
-          strncpy(parent_path, path, last_slash - path + 1);
-          parent_path[last_slash - path + 1] = '\0';
+          char temp_parent[1000];
+          strncpy(temp_parent, path, last_slash - path + 1);
+          temp_parent[last_slash - path + 1] = '\0';
+          if(strlen(temp_parent) > 1 && temp_parent[last_slash - path] == '/') {
+               temp_parent[last_slash - path] = '\0';
+          }
+          parent_path_virtual = temp_parent;
+          short_name = last_slash + 1;
       }
       
       char source_parent_path[1000];
-      sprintf(source_parent_path, "%s%s", source_dir, parent_path);
-  
-      char *short_name = (last_slash == NULL) ? (char*)path : last_slash + 1;
+      sprintf(source_parent_path, "%s%s", source_dir, parent_path_virtual);
       
       DIR *dp = opendir(source_parent_path);
       if (dp == NULL) {
@@ -689,9 +805,7 @@ $ sudo tail /var/log/lawakfs.log
               char real_name_base[256];
               strcpy(real_name_base, de->d_name);
               char *last_dot = strrchr(real_name_base, '.');
-              if (last_dot != NULL) {
-                  *last_dot = '\0';
-              }
+              if (last_dot != NULL) *last_dot = '\0';
   
               if (strcmp(short_name, real_name_base) == 0) {
                   sprintf(fpath, "%s%s", source_parent_path, de->d_name);
@@ -702,9 +816,7 @@ $ sudo tail /var/log/lawakfs.log
       }
       closedir(dp);
   
-      if (!found) {
-          strcpy(fpath, temp_path);
-      }
+      if (!found) strcpy(fpath, temp_path);
   }
   
   static int lawak_mkdir(const char *path, mode_t mode) { return -EROFS; }
@@ -717,44 +829,32 @@ $ sudo tail /var/log/lawakfs.log
   
   static int is_secret_and_access_denied(const char *path) {
       char *path_basename = strrchr(path, '/');
-      if (path_basename == NULL) {
-          path_basename = (char*)path;
-      } else {
-          path_basename++;
-      }
+      if (path_basename == NULL) path_basename = (char*)path;
+      else path_basename++;
   
       char name_without_ext[256];
       strcpy(name_without_ext, path_basename);
   
       char *last_dot = strrchr(name_without_ext, '.');
-      if (last_dot != NULL) {
-          *last_dot = '\0';
-      }
+      if (last_dot != NULL) *last_dot = '\0';
   
-      if (strcmp(name_without_ext, "secret") == 0) {
+      if (strcmp(name_without_ext, config.secret_basename) == 0) {
           time_t now;
           struct tm *local_time;
           time(&now);
           local_time = localtime(&now);
           int current_hour = local_time->tm_hour;
   
-          if (current_hour < 8 || current_hour >= 18) {
-              return 1; 
-          }
+          if (current_hour < config.start_hour || current_hour >= config.end_hour) return 1;
       }
-  
-      return 0; 
+      return 0;
   }
   
   static int lawak_getattr(const char *path, struct stat *stbuf) {
-      if (is_secret_and_access_denied(path)) {
-          return -ENOENT;
-      }
-  
+      if (is_secret_and_access_denied(path)) return -ENOENT;
       int res;
       char fpath[1000];
       find_real_path(fpath, path);
-  
       res = lstat(fpath, stbuf);
       if (res == -1) return -errno;
       return 0;
@@ -764,7 +864,6 @@ $ sudo tail /var/log/lawakfs.log
       (void) offset;
       (void) fi;
       char fpath[1000];
-      
       sprintf(fpath, "%s%s", source_dir, path);
   
       DIR *dp = opendir(fpath);
@@ -774,10 +873,7 @@ $ sudo tail /var/log/lawakfs.log
       while ((de = readdir(dp)) != NULL) {
           char entry_path[1000];
           sprintf(entry_path, "%s%s%s", path, strcmp(path, "/") == 0 ? "" : "/", de->d_name);
-  
-          if (is_secret_and_access_denied(entry_path)) {
-              continue; 
-          }
+          if (is_secret_and_access_denied(entry_path)) continue;
   
           if (de->d_type == DT_REG) { 
               char file_name[256];
@@ -837,9 +933,9 @@ $ sudo tail /var/log/lawakfs.log
               char *found_word = NULL;
               int word_len = 0;
   
-              for (int i = 0; i < num_filter_words; i++) {
-                  if (strncasecmp(input_ptr, filter_words[i], strlen(filter_words[i])) == 0) {
-                      found_word = (char*)filter_words[i];
+              for (int i = 0; i < config.filter_word_count; i++) {
+                  if (strncasecmp(input_ptr, config.filter_words[i], strlen(config.filter_words[i])) == 0) {
+                      found_word = (char*)config.filter_words[i];
                       word_len = strlen(found_word);
                       break;
                   }
@@ -860,15 +956,14 @@ $ sudo tail /var/log/lawakfs.log
       }
       free(file_content); 
   
-      
       int bytes_to_copy = 0;
       if (offset < transformed_size) {
           bytes_to_copy = transformed_size - offset;
-          if (bytes_to_copy > size) {
-              bytes_to_copy = size;
-          }
+          if (bytes_to_copy > size) bytes_to_copy = size;
           memcpy(buf, transformed_content + offset, bytes_to_copy);
       }   
+  
+      if (bytes_to_copy > 0) loging("READ", path);
   
       free(transformed_content); 
       return bytes_to_copy;
@@ -881,12 +976,10 @@ $ sudo tail /var/log/lawakfs.log
   }
   
   static int lawak_access(const char *path, int mask) {
-      if (is_secret_and_access_denied(path)) {
-          return -ENOENT;
-      }
-  
+      if (is_secret_and_access_denied(path)) return -ENOENT;
       char fpath[1000];
       find_real_path(fpath, path);
+      loging("ACCESS", path);
       return 0;
   }
   
@@ -906,6 +999,7 @@ $ sudo tail /var/log/lawakfs.log
   };
   
   int main(int argc, char *argv[]) {
+      parse_config();
       umask(0);
       return fuse_main(argc, argv, &lawak_oper, NULL);
   }
