@@ -620,6 +620,11 @@ $ sudo tail /var/log/lawakfs.log
 **Answer:**
 > Disini saya menyempurnakan kode dengan menambahkan config, mengubah beberapa fungsi agar berkesinambungan dengan config dan menambahkan fungsi parse_config
 ```
+  fren@fren-virtual-machine:~/task_2$ ls
+  lawakFS  lawakFS.c  mount_point  sumber
+  fren@fren-virtual-machine:~/task_2$ touch lawak.conf
+  fren@fren-virtual-machine:~/task_2$ nano lawak.conf
+
   fren@fren-virtual-machine:~/task_2$ gcc -Wall -D_FILE_OFFSET_BITS=64 `pkg-config fuse --cflags` lawakFS.c -o lawakFS `pkg-config fuse --libs` -lb64
   fren@fren-virtual-machine:~/task_2$ sudo ./lawakFS -o allow_other mount_point
   fren@fren-virtual-machine:~/task_2$ ls -l mount_point/
